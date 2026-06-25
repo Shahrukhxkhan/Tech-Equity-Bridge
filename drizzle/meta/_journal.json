@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1782386960752,
+      "tag": "0000_glossy_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1782387449085,
+      "tag": "0001_chilly_golden_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1782387488216,
+      "tag": "0002_foamy_gamma_corps",
+      "breakpoints": true
+    }
+  ]
 }

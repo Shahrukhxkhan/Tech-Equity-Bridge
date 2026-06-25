@@ -1,0 +1,2 @@
+ALTER TABLE `impactMetrics` MODIFY COLUMN `hoursContributed` decimal(10,2) NOT NULL DEFAULT '0.00';--> statement-breakpoint
+ALTER TABLE `platformStats` MODIFY COLUMN `totalHoursContributed` decimal(12,2) NOT NULL DEFAULT '0.00';
