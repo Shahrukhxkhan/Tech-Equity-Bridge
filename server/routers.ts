@@ -79,7 +79,7 @@ export const appRouter = router({
           description: z.string().min(1),
           category: z.string(),
           availability: z.string(),
-          specifications: z.record(z.any()).optional(),
+          specifications: z.record(z.string(), z.any()).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -278,7 +278,7 @@ export const appRouter = router({
           projectId: z.number(),
           title: z.string(),
           description: z.string(),
-          metricsAchieved: z.record(z.any()).optional(),
+          metricsAchieved: z.record(z.string(), z.any()).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
