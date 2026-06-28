@@ -1,8 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Users, Plus, MessageSquare, TrendingUp, Zap } from "lucide-react";
+import { useState } from "react";
+import { Users, Plus, MessageSquare, TrendingUp, Zap, Search } from "lucide-react";
 
 const SAMPLE_COALITIONS = [
   {
@@ -32,120 +29,106 @@ const SAMPLE_COALITIONS = [
 ];
 
 export default function CoalitionBuilder() {
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-40">
-        <div className="container-responsive flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold">Tech-Equity Bridge</h1>
-          </div>
-          <Button className="btn-elegant-outline">Sign In</Button>
-        </div>
-      </header>
+  const [coalitions] = useState(SAMPLE_COALITIONS);
 
-      <div className="container-responsive py-8 space-y-8">
-        {/* Page Title */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold">Coalition Builder</h2>
-            <p className="text-muted-foreground">
+  return (
+    <div className="min-h-screen bg-page">
+      {/* Header */}
+      <div className="bg-card border-b border-gray-300 py-8">
+        <div className="container-page flex-between">
+          <div>
+            <h1 className="text-3xl font-medium text-gray-900">Coalition Builder</h1>
+            <p className="text-gray-700 mt-1">
               Unite multiple non-profits to amplify impact and access larger resource packages
             </p>
           </div>
-
-          <Button className="btn-elegant-primary gap-2 w-full sm:w-auto">
-            <Plus className="w-4 h-4" />
+          <button className="btn btn-primary">
+            <Plus className="w-4 h-4 mr-2" />
             Create Coalition
-          </Button>
+          </button>
         </div>
+      </div>
 
+      <div className="container-page py-8">
         {/* Search */}
-        <div className="relative">
-          <Input placeholder="Search coalitions..." />
+        <div className="mb-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+            <input
+              type="search"
+              placeholder="Search coalitions..."
+              className="w-full pl-10 pr-4"
+            />
+          </div>
         </div>
 
         {/* Coalitions Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {SAMPLE_COALITIONS.map((coalition) => (
-            <Card key={coalition.id} className="card-elegant hover:shadow-xl transition-all">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <CardTitle>{coalition.name}</CardTitle>
-                    <CardDescription className="text-sm mt-1">
-                      {coalition.goal}
-                    </CardDescription>
-                  </div>
-                  <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-5 h-5 text-secondary" />
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {coalitions.map((coalition) => (
+            <div key={coalition.id} className="card flex flex-col">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="card-title">{coalition.name}</h3>
+                  <p className="text-sm text-gray-700 mt-2">{coalition.goal}</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                  <div>
-                    <div className="font-bold text-lg">{coalition.members}</div>
-                    <div className="text-xs text-muted-foreground">Members</div>
-                  </div>
-                  <div>
-                    <div className="font-bold text-lg">{coalition.resources}</div>
-                    <div className="text-xs text-muted-foreground">Resources</div>
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="text-xs">
-                      {coalition.impact}
-                    </Badge>
-                  </div>
+                <div className="flex-center w-10 h-10 rounded-md bg-secondary-light flex-shrink-0">
+                  <Users className="w-5 h-5 text-secondary" />
                 </div>
+              </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-2">
-                  <Button className="flex-1 btn-elegant-primary text-sm py-2">
-                    Join
-                  </Button>
-                  <Button className="btn-elegant-outline text-sm py-2">
-                    <MessageSquare className="w-4 h-4" />
-                  </Button>
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 text-center text-sm mb-4 pb-4 border-b border-gray-300">
+                <div>
+                  <div className="font-medium text-lg text-gray-900">{coalition.members}</div>
+                  <div className="text-xs text-gray-500">Members</div>
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <div className="font-medium text-lg text-gray-900">{coalition.resources}</div>
+                  <div className="text-xs text-gray-500">Resources</div>
+                </div>
+                <div>
+                  <span className="badge badge-verified text-xs">{coalition.impact}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 mt-auto">
+                <button className="btn btn-primary flex-1">Join</button>
+                <button className="btn btn-secondary">
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
 
         {/* Benefits Section */}
-        <Card className="card-elegant bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              Why Join a Coalition?
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <h4 className="font-semibold">Amplified Impact</h4>
-              <p className="text-sm text-muted-foreground">
+        <div className="card-sunken p-8">
+          <h3 className="text-xl font-medium text-gray-900 mb-6 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Why Join a Coalition?
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Amplified Impact</h4>
+              <p className="text-sm text-gray-700">
                 Combined resources reach more organizations and create greater social impact
               </p>
             </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Shared Expertise</h4>
-              <p className="text-sm text-muted-foreground">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Shared Expertise</h4>
+              <p className="text-sm text-gray-700">
                 Learn from peer organizations and collaborate on implementation
               </p>
             </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Better Negotiation</h4>
-              <p className="text-sm text-muted-foreground">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Better Negotiation</h4>
+              <p className="text-sm text-gray-700">
                 Access larger resource packages and negotiate better terms together
               </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

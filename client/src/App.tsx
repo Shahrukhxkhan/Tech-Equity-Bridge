@@ -23,6 +23,7 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/coalition" component={CoalitionBuilder} />
       <Route path="/impact" component={ImpactTracker} />
+      <Route path="/grant-assistant" component={GrantAssistant} />
       <Route path="/grants" component={GrantAssistant} />
       <Route path="/notifications" component={NotificationCenter} />
       <Route path="/admin" component={AdminDashboard} />

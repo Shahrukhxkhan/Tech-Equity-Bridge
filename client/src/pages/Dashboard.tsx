@@ -1,329 +1,268 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  BarChart3,
-  FileText,
-  Heart,
-  MessageSquare,
-  Plus,
-  Search,
-  Settings,
-  TrendingUp,
-  Users,
-  Zap,
-} from "lucide-react";
-import { Link } from "wouter";
-import { trpc } from "@/lib/trpc";
-import { useEffect, useState } from "react";
+import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings } from "lucide-react";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
+  const { user, isAuthenticated } = useAuth();
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-page flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-700 mb-4">Please sign in to access your dashboard.</p>
+          <a href="/" className="btn btn-primary">Back to Home</a>
+        </div>
+      </div>
+    );
   }
 
-  const isDonor = user.role === "donor";
+  const isDonor = user?.role === "donor";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-page">
       {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-40">
-        <div className="container-responsive flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold">Tech-Equity Bridge</h1>
+      <div className="bg-card border-b border-gray-300 py-6">
+        <div className="container-page flex-between">
+          <div>
+            <h1 className="text-3xl font-medium text-gray-900">Dashboard</h1>
+            <p className="text-gray-700 mt-1">Welcome back, {user?.name}</p>
           </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user.name}</span>
-            <button
-              onClick={() => logout()}
-              className="text-sm text-muted-foreground hover:text-foreground transition"
-            >
-              Sign Out
-            </button>
-          </div>
+          <button className="btn btn-ghost">
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
-      </header>
+      </div>
 
-      <div className="container-responsive py-8 space-y-8">
-        {/* Welcome Section */}
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold">
-            {isDonor ? "Donor Dashboard" : "Non-Profit Dashboard"}
-          </h2>
-          <p className="text-muted-foreground">
-            {isDonor
-              ? "Manage your resources, track impact, and connect with non-profits"
-              : "Discover resources, submit requests, and track outcomes"}
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid md:grid-cols-4 gap-4">
-          {isDonor ? (
-            <>
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Resources Listed
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">12</div>
-                  <p className="text-xs text-muted-foreground mt-1">+2 this month</p>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Pending Requests
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">5</div>
-                  <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Organizations Helped
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">28</div>
-                  <p className="text-xs text-muted-foreground mt-1">+4 this quarter</p>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Impact Score
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">8.7/10</div>
-                  <p className="text-xs text-muted-foreground mt-1">Excellent</p>
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <>
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Resources Received
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">7</div>
-                  <p className="text-xs text-muted-foreground mt-1">Active resources</p>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Pending Requests
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3</div>
-                  <p className="text-xs text-muted-foreground mt-1">Under review</p>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Projects Enabled
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">12</div>
-                  <p className="text-xs text-muted-foreground mt-1">+3 this month</p>
-                </CardContent>
-              </Card>
-
-              <Card className="card-elegant">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    People Impacted
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">2.4K</div>
-                  <p className="text-xs text-muted-foreground mt-1">+500 this quarter</p>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="resources">
-              {isDonor ? "My Resources" : "Browse"}
-            </TabsTrigger>
-            <TabsTrigger value="requests">Requests</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Recent Activity */}
-              <Card className="card-elegant">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-4 pb-4 border-b border-border">
-                    <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                    <div>
-                      <p className="font-medium text-sm">Resource request approved</p>
-                      <p className="text-xs text-muted-foreground">2 hours ago</p>
+      {/* Main Content */}
+      <div className="container-page py-8">
+        {isDonor ? (
+          <>
+            {/* Donor Dashboard */}
+            <div className="space-y-8">
+              {/* Key Metrics */}
+              <div>
+                <h2 className="text-xl font-medium text-gray-900 mb-4">Your Impact</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <Zap className="w-5 h-5 text-secondary" />
+                      <span className="text-xs text-gray-500">This month</span>
                     </div>
+                    <div className="metric-value metric-value-secondary">847</div>
+                    <div className="metric-label">Resources shared</div>
                   </div>
-                  <div className="flex gap-4 pb-4 border-b border-border">
-                    <div className="w-2 h-2 rounded-full bg-secondary mt-2 flex-shrink-0"></div>
-                    <div>
-                      <p className="font-medium text-sm">New match found</p>
-                      <p className="text-xs text-muted-foreground">1 day ago</p>
+
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <Users className="w-5 h-5 text-primary" />
+                      <span className="text-xs text-gray-500">Total</span>
                     </div>
+                    <div className="metric-value metric-value-primary">1,200+</div>
+                    <div className="metric-label">Organizations helped</div>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0"></div>
-                    <div>
-                      <p className="font-medium text-sm">Impact milestone reached</p>
-                      <p className="text-xs text-muted-foreground">3 days ago</p>
+
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <Award className="w-5 h-5 text-accent" />
+                      <span className="text-xs text-gray-500">Estimated</span>
                     </div>
+                    <div className="metric-value metric-value-accent">50K+</div>
+                    <div className="metric-label">People impacted</div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <TrendingUp className="w-5 h-5 text-primary" />
+                      <span className="text-xs text-gray-500">This quarter</span>
+                    </div>
+                    <div className="metric-value metric-value-primary">+24%</div>
+                    <div className="metric-label">Growth in reach</div>
+                  </div>
+                </div>
+              </div>
 
               {/* Quick Actions */}
-              <Card className="card-elegant">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Plus className="w-5 h-5" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {isDonor ? (
-                    <>
-                      <Button className="w-full btn-elegant-primary justify-start gap-2">
-                        <Plus className="w-4 h-4" />
-                        List New Resource
-                      </Button>
-                      <Button className="w-full btn-elegant-outline justify-start gap-2">
-                        <MessageSquare className="w-4 h-4" />
-                        View Messages
-                      </Button>
-                      <Button className="w-full btn-elegant-outline justify-start gap-2">
-                        <BarChart3 className="w-4 h-4" />
-                        View Impact
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button className="w-full btn-elegant-primary justify-start gap-2">
-                        <Search className="w-4 h-4" />
-                        Browse Resources
-                      </Button>
-                      <Button className="w-full btn-elegant-outline justify-start gap-2">
-                        <FileText className="w-4 h-4" />
-                        Grant Assistant
-                      </Button>
-                      <Button className="w-full btn-elegant-outline justify-start gap-2">
-                        <Users className="w-4 h-4" />
-                        Coalition Builder
-                      </Button>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
+              <div>
+                <h2 className="text-xl font-medium text-gray-900 mb-4">Quick Actions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <a href="/marketplace" className="card hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-center w-10 h-10 rounded-md bg-primary-light">
+                        <Zap className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="card-title">List a Resource</h3>
+                        <p className="text-xs text-gray-500">Share your tools with non-profits</p>
+                      </div>
+                    </div>
+                  </a>
+
+                  <a href="/marketplace" className="card hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-center w-10 h-10 rounded-md bg-secondary-light">
+                        <MessageSquare className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <h3 className="card-title">Review Requests</h3>
+                        <p className="text-xs text-gray-500">3 pending requests</p>
+                      </div>
+                    </div>
+                  </a>
+
+                  <a href="/impact" className="card hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-center w-10 h-10 rounded-md bg-accent-light">
+                        <BarChart3 className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="card-title">View Impact</h3>
+                        <p className="text-xs text-gray-500">See your outcomes</p>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div>
+                <h2 className="text-xl font-medium text-gray-900 mb-4">Recent Activity</h2>
+                <div className="space-y-3">
+                  <div className="card">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">Request approved: AI Content Moderation</p>
+                        <p className="text-sm text-gray-500">Approved for Global Education Initiative</p>
+                      </div>
+                      <span className="text-xs text-gray-500">2 hours ago</span>
+                    </div>
+                  </div>
+                  <div className="card">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">New match found: Data Analytics Platform</p>
+                        <p className="text-sm text-gray-500">92% match with Community Health Network</p>
+                      </div>
+                      <span className="text-xs text-gray-500">1 day ago</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </TabsContent>
+          </>
+        ) : (
+          <>
+            {/* Non-Profit Dashboard */}
+            <div className="space-y-8">
+              {/* Key Metrics */}
+              <div>
+                <h2 className="text-xl font-medium text-gray-900 mb-4">Your Resources</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <Zap className="w-5 h-5 text-primary" />
+                      <span className="text-xs text-gray-500">Total</span>
+                    </div>
+                    <div className="metric-value metric-value-primary">342</div>
+                    <div className="metric-label">Resources received</div>
+                  </div>
 
-          {/* Resources Tab */}
-          <TabsContent value="resources" className="space-y-4">
-            <Card className="card-elegant">
-              <CardHeader>
-                <CardTitle>
-                  {isDonor ? "Your Resources" : "Available Resources"}
-                </CardTitle>
-                <CardDescription>
-                  {isDonor
-                    ? "Manage and track your listed resources"
-                    : "Browse and request resources from donors"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Zap className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No resources yet. {isDonor ? "List your first resource" : "Browse available resources"}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <Award className="w-5 h-5 text-secondary" />
+                      <span className="text-xs text-gray-500">Active</span>
+                    </div>
+                    <div className="metric-value metric-value-secondary">125+</div>
+                    <div className="metric-label">Projects enabled</div>
+                  </div>
 
-          {/* Requests Tab */}
-          <TabsContent value="requests" className="space-y-4">
-            <Card className="card-elegant">
-              <CardHeader>
-                <CardTitle>
-                  {isDonor ? "Resource Requests" : "My Requests"}
-                </CardTitle>
-                <CardDescription>
-                  {isDonor
-                    ? "Requests from non-profits for your resources"
-                    : "Track your resource requests and their status"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Heart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No requests yet</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <Users className="w-5 h-5 text-accent" />
+                      <span className="text-xs text-gray-500">Estimated</span>
+                    </div>
+                    <div className="metric-value metric-value-accent">50K+</div>
+                    <div className="metric-label">People impacted</div>
+                  </div>
 
-          {/* Messages Tab */}
-          <TabsContent value="messages" className="space-y-4">
-            <Card className="card-elegant">
-              <CardHeader>
-                <CardTitle>Messages</CardTitle>
-                <CardDescription>
-                  Communicate with donors and non-profits
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No messages yet</p>
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-2">
+                      <TrendingUp className="w-5 h-5 text-primary" />
+                      <span className="text-xs text-gray-500">This month</span>
+                    </div>
+                    <div className="metric-value metric-value-primary">+12</div>
+                    <div className="metric-label">New resources</div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+
+              {/* Quick Actions */}
+              <div>
+                <h2 className="text-xl font-medium text-gray-900 mb-4">Quick Actions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <a href="/marketplace" className="card hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-center w-10 h-10 rounded-md bg-primary-light">
+                        <Zap className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="card-title">Browse Resources</h3>
+                        <p className="text-xs text-gray-500">Find new tools and agents</p>
+                      </div>
+                    </div>
+                  </a>
+
+                  <a href="/coalition" className="card hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-center w-10 h-10 rounded-md bg-secondary-light">
+                        <Users className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <h3 className="card-title">Join Coalition</h3>
+                        <p className="text-xs text-gray-500">Partner with other non-profits</p>
+                      </div>
+                    </div>
+                  </a>
+
+                  <a href="/grant-assistant" className="card hover:border-primary transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-center w-10 h-10 rounded-md bg-accent-light">
+                        <BarChart3 className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="card-title">Write Grant</h3>
+                        <p className="text-xs text-gray-500">AI-powered assistance</p>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              {/* Pending Requests */}
+              <div>
+                <h2 className="text-xl font-medium text-gray-900 mb-4">Pending Requests</h2>
+                <div className="space-y-3">
+                  <div className="card">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">AI Content Moderation Agent</p>
+                        <p className="text-sm text-gray-500">Requested from TechCorp Inc.</p>
+                      </div>
+                      <span className="badge badge-high-demand">Pending</span>
+                    </div>
+                  </div>
+                  <div className="card">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">Cloud Computing Credits</p>
+                        <p className="text-sm text-gray-500">Requested from CloudServices Ltd.</p>
+                      </div>
+                      <span className="badge badge-verified">Approved</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

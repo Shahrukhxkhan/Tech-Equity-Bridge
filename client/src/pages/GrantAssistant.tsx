@@ -1,19 +1,11 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Send, Download, Copy, Zap, FileText, Lightbulb } from "lucide-react";
-import { toast } from "sonner";
+import { Send, Download, Copy, FileText, Lightbulb, Zap } from "lucide-react";
 
 export default function GrantAssistant() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([
     {
       role: "assistant",
-      content: "Hello! I'm your AI-powered grant writing assistant. I can help you craft compelling grant applications tailored to your organization's needs and the resources you're seeking. What would you like help with today?",
+      content: "Hello! I'm your AI-powered grant writing assistant. I can help you craft compelling grant applications tailored to your organization's needs. What would you like help with today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -27,14 +19,13 @@ export default function GrantAssistant() {
     setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
 
-    // Simulate AI response
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content:
-            "Based on your organization's profile and the resources you're seeking, here's a tailored grant proposal outline:\n\n1. **Executive Summary**: Clearly state your mission and the specific need\n2. **Problem Statement**: Quantify the challenge with data\n3. **Proposed Solution**: Detail how the resources will be used\n4. **Impact Metrics**: Define measurable outcomes\n5. **Timeline**: Provide implementation schedule\n\nWould you like me to help you develop any of these sections?",
+            "Based on your organization's profile, here's a tailored grant proposal outline:\n\n1. Executive Summary - Clearly state your mission\n2. Problem Statement - Quantify the challenge\n3. Proposed Solution - Detail resource usage\n4. Impact Metrics - Define measurable outcomes\n5. Timeline - Implementation schedule\n\nWould you like me to develop any section?",
         },
       ]);
       setIsLoading(false);
@@ -48,69 +39,50 @@ export default function GrantAssistant() {
       icon: "📚",
     },
     {
-      name: "Healthcare AI Deployment",
-      description: "For healthcare non-profits implementing AI solutions",
+      name: "Healthcare AI Grant",
+      description: "For healthcare organizations deploying AI solutions",
       icon: "🏥",
     },
     {
-      name: "Environmental Data Initiative",
-      description: "For environmental organizations needing data and analytics tools",
+      name: "Environmental Data Grant",
+      description: "For environmental organizations needing data resources",
       icon: "🌍",
-    },
-    {
-      name: "Social Services Technology",
-      description: "For social service organizations improving service delivery with tech",
-      icon: "🤝",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-page">
       {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-40">
-        <div className="container-responsive flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold">Tech-Equity Bridge</h1>
+      <div className="bg-card border-b border-gray-300 py-8">
+        <div className="container-page flex-between">
+          <div>
+            <h1 className="text-3xl font-medium text-gray-900">Grant Writing Assistant</h1>
+            <p className="text-gray-700 mt-1">AI-powered help for crafting compelling grant applications</p>
           </div>
-          <Button className="btn-elegant-outline">Sign In</Button>
+          <button className="btn btn-primary">
+            <Download className="w-4 h-4 mr-2" />
+            Export Draft
+          </button>
         </div>
-      </header>
+      </div>
 
-      <div className="container-responsive py-8 space-y-8">
-        {/* Page Title */}
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold">Grant Writing Assistant</h2>
-          <p className="text-muted-foreground">
-            AI-powered help crafting compelling grant applications and resource requests
-          </p>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Chat Interface */}
-          <div className="lg:col-span-2 space-y-4">
-            <Card className="card-elegant h-96 flex flex-col">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5" />
-                  Grant Writing Chat
-                </CardTitle>
-              </CardHeader>
-              <Separator />
-              <CardContent className="flex-1 overflow-y-auto py-4 space-y-4">
+      <div className="container-page py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Chat Area */}
+          <div className="lg:col-span-2">
+            <div className="card flex flex-col h-[600px]">
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto mb-4 space-y-4 pb-4">
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      className={`max-w-xs px-4 py-3 rounded-lg ${
                         msg.role === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-none"
-                          : "bg-secondary/10 text-foreground rounded-bl-none"
+                          ? "bg-primary text-white"
+                          : "bg-sunken text-gray-900"
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -119,138 +91,84 @@ export default function GrantAssistant() {
                 ))}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-secondary/10 px-4 py-2 rounded-lg rounded-bl-none">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" />
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce delay-100" />
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce delay-200" />
+                    <div className="bg-sunken px-4 py-3 rounded-lg">
+                      <div className="flex gap-2">
+                        <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce delay-100"></div>
+                        <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce delay-200"></div>
                       </div>
                     </div>
                   </div>
                 )}
-              </CardContent>
-              <Separator />
-              <div className="p-4 flex gap-2">
-                <Textarea
-                  placeholder="Ask for help with your grant..."
+              </div>
+
+              {/* Input */}
+              <div className="flex gap-2 pt-4 border-t border-gray-300">
+                <input
+                  type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  className="min-h-12 resize-none"
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  placeholder="Ask for help with your grant..."
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <Button
+                <button
                   onClick={handleSendMessage}
-                  disabled={isLoading || !input.trim()}
-                  className="btn-elegant-primary"
+                  disabled={isLoading}
+                  className="btn btn-primary"
                 >
                   <Send className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4">
-            {/* Quick Actions */}
-            <Card className="card-elegant">
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button className="w-full btn-elegant-outline justify-start gap-2 text-sm">
-                  <FileText className="w-4 h-4" />
-                  New Draft
-                </Button>
-                <Button className="w-full btn-elegant-outline justify-start gap-2 text-sm">
-                  <Copy className="w-4 h-4" />
-                  Load Template
-                </Button>
-                <Button className="w-full btn-elegant-outline justify-start gap-2 text-sm">
-                  <Download className="w-4 h-4" />
-                  Export as PDF
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="space-y-6">
+            {/* Quick Templates */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-accent" />
+                Templates
+              </h3>
+              <div className="space-y-3">
+                {templates.map((template) => (
+                  <button
+                    key={template.name}
+                    className="card text-left hover:border-primary transition-all w-full"
+                  >
+                    <div className="text-2xl mb-2">{template.icon}</div>
+                    <h4 className="font-medium text-gray-900 text-sm">{template.name}</h4>
+                    <p className="text-xs text-gray-500 mt-1">{template.description}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Recent Drafts */}
-            <Card className="card-elegant">
-              <CardHeader>
-                <CardTitle className="text-lg">Recent Drafts</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="text-sm space-y-2">
-                  <div className="p-2 rounded border border-border hover:bg-secondary/5 cursor-pointer transition">
-                    <p className="font-medium text-sm">Education Initiative Grant</p>
-                    <p className="text-xs text-muted-foreground">Modified 2 days ago</p>
-                  </div>
-                  <div className="p-2 rounded border border-border hover:bg-secondary/5 cursor-pointer transition">
-                    <p className="font-medium text-sm">Healthcare AI Proposal</p>
-                    <p className="text-xs text-muted-foreground">Modified 1 week ago</p>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-secondary" />
+                Recent Drafts
+              </h3>
+              <div className="space-y-2">
+                <div className="card">
+                  <p className="text-sm font-medium text-gray-900">Education Initiative Grant</p>
+                  <p className="text-xs text-gray-500 mt-1">Updated 2 hours ago</p>
+                  <div className="flex gap-2 mt-3">
+                    <button className="btn btn-secondary btn-sm flex-1">
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
+                    </button>
+                    <button className="btn btn-ghost btn-sm">
+                      <Download className="w-3 h-3" />
+                    </button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Templates Section */}
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-xl font-bold mb-2">Grant Templates</h3>
-            <p className="text-muted-foreground text-sm">
-              Start with a template tailored to your sector and needs
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {templates.map((template) => (
-              <Card key={template.name} className="card-elegant hover:shadow-lg transition-all cursor-pointer">
-                <CardHeader>
-                  <div className="text-3xl mb-2">{template.icon}</div>
-                  <CardTitle className="text-base">{template.name}</CardTitle>
-                  <CardDescription className="text-xs">{template.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full btn-elegant-outline text-sm py-2">Use Template</Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Tips Section */}
-        <Card className="card-elegant bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5" />
-              Grant Writing Tips
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <h4 className="font-semibold">Be Specific</h4>
-              <p className="text-sm text-muted-foreground">
-                Clearly define the problem, your solution, and expected outcomes with concrete metrics
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Show Impact</h4>
-              <p className="text-sm text-muted-foreground">
-                Demonstrate how the resources will create measurable social impact and reach
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Tell Your Story</h4>
-              <p className="text-sm text-muted-foreground">
-                Share compelling narratives about your organization and the communities you serve
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

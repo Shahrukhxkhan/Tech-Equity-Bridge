@@ -164,3 +164,56 @@
 - Accessible component library (shadcn/ui)
 - Professional typography system (Sora + Inter)
 - Consistent spacing and shadow tokens
+
+
+## Design System Refactor - Civic Commons Theme
+
+### CSS & Design Tokens
+- [ ] Update global CSS with Civic Commons color palette
+- [ ] Implement teal-green primary (#1D9E75)
+- [ ] Implement civic purple secondary (#534AB7)
+- [ ] Implement impact amber accent (#BA7517)
+- [ ] Update neutral grays to match spec
+- [ ] Implement dark mode with specified colors
+- [ ] Update typography to match (Inter/DM Sans, max weight 500)
+- [ ] Add Lora serif font for marketing pages
+- [ ] Update spacing scale and border radius tokens
+- [ ] Remove all gradients, shadows, and blur effects
+
+### Component Refactor
+- [ ] Refactor Button component (primary, secondary, danger variants)
+- [ ] Refactor Card component (flat design, 0.5px borders)
+- [ ] Refactor Badge/Status chips (verified, AI agent, high demand, inactive)
+- [ ] Create Match Score Bar component
+- [ ] Refactor Navigation (sidebar/top nav with pills)
+- [ ] Create Impact Metric Cards component
+- [ ] Refactor Form inputs (36px height, focus ring)
+- [ ] Update all icons to Tabler Icons (outline only)
+- [ ] Remove all drop shadows from components
+- [ ] Ensure no mixed purple/green on interactive elements
+
+### Page Refactors
+- [ ] Landing page - Civic Commons styling
+- [ ] Onboarding - Simplified forms, green primary
+- [ ] Dashboard - Data-dense for donors, warmer for non-profits
+- [ ] Marketplace - Flat cards, match score bars
+- [ ] Coalition Builder - Purple tags for coalitions
+- [ ] Impact Tracker - Metric cards with semantic colors
+- [ ] Grant Assistant - Clean, minimal interface
+- [ ] Notification Center - Flat design, status badges
+- [ ] Admin Dashboard - Data tables, clean layout
+
+### Dark Mode Implementation
+- [ ] Apply dark mode colors to all pages
+- [ ] Test contrast and readability
+- [ ] Ensure color consistency across light/dark modes
+- [ ] Add theme toggle if needed
+
+### Quality Assurance
+- [ ] Verify no gradients or shadows remain
+- [ ] Check all font weights (max 500)
+- [ ] Verify border radius consistency
+- [ ] Test all interactive elements
+- [ ] Check dark mode rendering
+- [ ] Verify icon consistency (Tabler Icons only)
+- [ ] Test responsive layouts
