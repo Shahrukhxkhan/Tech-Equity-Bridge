@@ -342,3 +342,151 @@ export const platformStats = mysqlTable("platformStats", {
 
 export type PlatformStats = typeof platformStats.$inferSelect;
 export type InsertPlatformStats = typeof platformStats.$inferInsert;
+
+/**
+ * Donor Incentive Tiers - Tiered incentive framework
+ */
+export const donorIncentiveTiers = mysqlTable("donorIncentiveTiers", {
+  id: int("id").autoincrement().primaryKey(),
+  donorId: int("donorId").notNull().unique(),
+  tier: mysqlEnum("tier", ["impact_ally", "equity_champion", "founding_partner"]).notNull(),
+  monthlyPledgeAmount: decimal("monthlyPledgeAmount", { precision: 12, scale: 2 }).notNull(),
+  pledgeUnit: mysqlEnum("pledgeUnit", ["gpu_hours", "api_calls", "agent_hours", "compute_units"]).notNull(),
+  verificationStatus: mysqlEnum("verificationStatus", ["pending", "verified", "rejected"]).default("pending").notNull(),
+  badgePublic: boolean("badgePublic").default(true).notNull(),
+  csrReportsEnabled: boolean("csrReportsEnabled").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DonorIncentiveTier = typeof donorIncentiveTiers.$inferSelect;
+export type InsertDonorIncentiveTier = typeof donorIncentiveTiers.$inferInsert;
+
+/**
+ * Resource Pledges - Formal commitment tracking
+ */
+export const resourcePledges = mysqlTable("resourcePledges", {
+  id: int("id").autoincrement().primaryKey(),
+  donorId: int("donorId").notNull(),
+  resourceType: mysqlEnum("resourceType", ["ai_agent", "gpu_compute", "data_processing", "software_tool"]).notNull(),
+  quantity: decimal("quantity", { precision: 12, scale: 2 }).notNull(),
+  unit: varchar("unit", { length: 50 }).notNull(),
+  availabilityWindows: json("availabilityWindows").$type<Array<{day: string; startTime: string; endTime: string}>>().default([]).notNull(),
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate"),
+  status: mysqlEnum("status", ["active", "paused", "completed", "cancelled"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ResourcePledge = typeof resourcePledges.$inferSelect;
+export type InsertResourcePledge = typeof resourcePledges.$inferInsert;
+
+/**
+ * Pledge Fulfillment Log - Monthly tracking of pledge fulfillment
+ */
+export const pledgeFulfillmentLog = mysqlTable("pledgeFulfillmentLog", {
+  id: int("id").autoincrement().primaryKey(),
+  pledgeId: int("pledgeId").notNull(),
+  month: varchar("month", { length: 7 }).notNull(),
+  pledgedAmount: decimal("pledgedAmount", { precision: 12, scale: 2 }).notNull(),
+  deliveredAmount: decimal("deliveredAmount", { precision: 12, scale: 2 }).default("0.00").notNull(),
+  fulfillmentPercentage: decimal("fulfillmentPercentage", { precision: 5, scale: 2 }).default("0.00").notNull(),
+  flagged: boolean("flagged").default(false).notNull(),
+  flagReason: varchar("flagReason", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PledgeFulfillmentLog = typeof pledgeFulfillmentLog.$inferSelect;
+export type InsertPledgeFulfillmentLog = typeof pledgeFulfillmentLog.$inferInsert;
+
+/**
+ * Resource Quality Benchmarks - SLA enforcement
+ */
+export const resourceQualityBenchmarks = mysqlTable("resourceQualityBenchmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  resourceId: int("resourceId").notNull().unique(),
+  resourceType: mysqlEnum("resourceType", ["ai_agent", "gpu_compute", "data_processing", "software_tool"]).notNull(),
+  latencyP95Ms: int("latencyP95Ms"),
+  uptimePercentage: decimal("uptimePercentage", { precision: 5, scale: 2 }),
+  tokenLimit: int("tokenLimit"),
+  throughputBenchmark: varchar("throughputBenchmark", { length: 255 }),
+  jobCompletionSlaHours: int("jobCompletionSlaHours"),
+  qualityScore: decimal("qualityScore", { precision: 3, scale: 1 }).default("0.0").notNull(),
+  benchmarkPassed: boolean("benchmarkPassed").default(false).notNull(),
+  testedAt: timestamp("testedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ResourceQualityBenchmark = typeof resourceQualityBenchmarks.$inferSelect;
+export type InsertResourceQualityBenchmark = typeof resourceQualityBenchmarks.$inferInsert;
+
+/**
+ * Donor Incentive Events - Audit trail for incentive system
+ */
+export const donorIncentiveEvents = mysqlTable("donorIncentiveEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  donorId: int("donorId").notNull(),
+  eventType: mysqlEnum("eventType", [
+    "tier_upgrade",
+    "tier_downgrade",
+    "pledge_created",
+    "pledge_fulfilled",
+    "pledge_under_delivery",
+    "quality_issue",
+    "csr_report_generated",
+    "badge_awarded",
+    "grace_period_applied",
+    "grace_period_expired"
+  ]).notNull(),
+  details: json("details").$type<Record<string, unknown>>().default({}).notNull(),
+  triggeredAt: timestamp("triggeredAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DonorIncentiveEvent = typeof donorIncentiveEvents.$inferSelect;
+export type InsertDonorIncentiveEvent = typeof donorIncentiveEvents.$inferInsert;
+
+/**
+ * CSR Reports - Corporate Social Responsibility reports
+ */
+export const csrReports = mysqlTable("csrReports", {
+  id: int("id").autoincrement().primaryKey(),
+  donorId: int("donorId").notNull(),
+  month: varchar("month", { length: 7 }).notNull(),
+  reportUrl: varchar("reportUrl", { length: 500 }),
+  organizationsHelped: int("organizationsHelped").default(0).notNull(),
+  hoursContributed: decimal("hoursContributed", { precision: 12, scale: 2 }).default("0.00").notNull(),
+  peopleImpacted: int("peopleImpacted").default(0).notNull(),
+  successStories: json("successStories").$type<Array<{title: string; description: string; impact: string}>>().default([]).notNull(),
+  griAligned: boolean("griAligned").default(true).notNull(),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CsrReport = typeof csrReports.$inferSelect;
+export type InsertCsrReport = typeof csrReports.$inferInsert;
+
+/**
+ * Donor Impact Wall - Public-facing donor profiles
+ */
+export const donorImpactWalls = mysqlTable("donorImpactWalls", {
+  id: int("id").autoincrement().primaryKey(),
+  donorId: int("donorId").notNull().unique(),
+  publicSlug: varchar("publicSlug", { length: 255 }).unique(),
+  displayName: varchar("displayName", { length: 255 }).notNull(),
+  logoUrl: varchar("logoUrl", { length: 500 }),
+  description: longtext("description"),
+  tier: mysqlEnum("tier", ["impact_ally", "equity_champion", "founding_partner"]).notNull(),
+  totalHoursContributed: decimal("totalHoursContributed", { precision: 12, scale: 2 }).default("0.00").notNull(),
+  organizationsHelped: int("organizationsHelped").default(0).notNull(),
+  peopleImpacted: int("peopleImpacted").default(0).notNull(),
+  featuredStories: json("featuredStories").$type<Array<{title: string; description: string; link: string}>>().default([]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DonorImpactWall = typeof donorImpactWalls.$inferSelect;
+export type InsertDonorImpactWall = typeof donorImpactWalls.$inferInsert;
