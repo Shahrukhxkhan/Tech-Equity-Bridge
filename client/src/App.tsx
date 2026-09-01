@@ -10,6 +10,8 @@ import ImpactTracker from "@/pages/ImpactTracker";
 import GrantAssistant from "@/pages/GrantAssistant";
 import NotificationCenter from "@/pages/NotificationCenter";
 import AdminDashboard from "@/pages/AdminDashboard";
+import ImpactWall from "@/pages/ImpactWall";
+import PledgeMonitor from "@/pages/PledgeMonitor";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -23,10 +25,15 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/coalition" component={CoalitionBuilder} />
       <Route path="/impact" component={ImpactTracker} />
+      <Route path="/impact-wall" component={ImpactWall} />
+      <Route path="/impact-wall/:slug" component={ImpactWall} />
+      <Route path="/donors" component={ImpactWall} />
       <Route path="/grant-assistant" component={GrantAssistant} />
       <Route path="/grants" component={GrantAssistant} />
       <Route path="/notifications" component={NotificationCenter} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/pledges" component={PledgeMonitor} />
+      <Route path="/admin/pledge-monitor" component={PledgeMonitor} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -37,10 +44,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />

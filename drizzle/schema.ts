@@ -490,3 +490,23 @@ export const donorImpactWalls = mysqlTable("donorImpactWalls", {
 
 export type DonorImpactWall = typeof donorImpactWalls.$inferSelect;
 export type InsertDonorImpactWall = typeof donorImpactWalls.$inferInsert;
+
+/**
+ * Resource Ratings - Post-usage ratings from non-profits
+ */
+export const resourceRatings = mysqlTable("resourceRatings", {
+  id: int("id").autoincrement().primaryKey(),
+  resourceId: int("resourceId").notNull(),
+  nonprofitId: int("nonprofitId").notNull(),
+  requestId: int("requestId"),
+  rating: int("rating").notNull(), // 1 - 5 scale
+  latencyRating: int("latencyRating"), // 1 - 5 scale
+  reliabilityRating: int("reliabilityRating"), // 1 - 5 scale
+  feedback: text("feedback"),
+  reviewedByAdmin: boolean("reviewedByAdmin").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ResourceRating = typeof resourceRatings.$inferSelect;
+export type InsertResourceRating = typeof resourceRatings.$inferInsert;
+

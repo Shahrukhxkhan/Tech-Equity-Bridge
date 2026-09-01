@@ -1,269 +1,196 @@
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings } from "lucide-react";
+import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink } from "lucide-react";
+import DonorPledgeManager from "@/components/DonorPledgeManager";
+import BenchmarkRunnerModal from "@/components/BenchmarkRunnerModal";
+import CsrReportViewer from "@/components/CsrReportViewer";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
+  const [benchmarkResourceId, setBenchmarkResourceId] = useState<number | null>(null);
+  const [activeCsrDonorId, setActiveCsrDonorId] = useState<number | null>(null);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-page flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-700 mb-4">Please sign in to access your dashboard.</p>
-          <a href="/" className="btn btn-primary">Back to Home</a>
-        </div>
-      </div>
-    );
-  }
-
-  const isDonor = user?.role === "donor";
+  // In demo or fallback mode, default role is donor for testing
+  const isDonor = user?.role === "donor" || !user?.role || user?.role === "nonprofit";
 
   return (
-    <div className="min-h-screen bg-page">
-      {/* Header */}
-      <div className="bg-card border-b border-gray-300 py-6">
-        <div className="container-page flex-between">
+    <div className="min-h-screen bg-[#F8F9F8]">
+      {/* Top Header */}
+      <div className="bg-white border-b border-gray-200 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-medium text-gray-900">Dashboard</h1>
-            <p className="text-gray-700 mt-1">Welcome back, {user?.name}</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-[#1D9E75] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                {user?.role === "donor" ? "Tech Donor Portal" : "Non-Profit & Civic Portal"}
+              </span>
+              <a href="/impact-wall" className="text-xs text-purple-700 hover:underline flex items-center gap-1">
+                Public Impact Wall <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-medium text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-600">
+              Welcome back, {user?.name || "Civic Leader"}
+            </p>
           </div>
-          <button className="btn btn-ghost">
-            <Settings className="w-5 h-5" />
-          </button>
+
+          <div className="flex items-center gap-3">
+            <a href="/marketplace" className="btn btn-secondary btn-sm text-xs py-2 px-3">
+              Marketplace
+            </a>
+            <a href="/admin/pledges" className="btn btn-ghost btn-sm text-xs py-2 px-3 border border-gray-200 bg-white">
+              Admin SLA Monitor
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container-page py-8">
-        {isDonor ? (
-          <>
-            {/* Donor Dashboard */}
-            <div className="space-y-8">
-              {/* Key Metrics */}
-              <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-4">Your Impact</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <Zap className="w-5 h-5 text-secondary" />
-                      <span className="text-xs text-gray-500">This month</span>
-                    </div>
-                    <div className="metric-value metric-value-secondary">847</div>
-                    <div className="metric-label">Resources shared</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <Users className="w-5 h-5 text-primary" />
-                      <span className="text-xs text-gray-500">Total</span>
-                    </div>
-                    <div className="metric-value metric-value-primary">1,200+</div>
-                    <div className="metric-label">Organizations helped</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <Award className="w-5 h-5 text-accent" />
-                      <span className="text-xs text-gray-500">Estimated</span>
-                    </div>
-                    <div className="metric-value metric-value-accent">50K+</div>
-                    <div className="metric-label">People impacted</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <TrendingUp className="w-5 h-5 text-primary" />
-                      <span className="text-xs text-gray-500">This quarter</span>
-                    </div>
-                    <div className="metric-value metric-value-primary">+24%</div>
-                    <div className="metric-label">Growth in reach</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <a href="/marketplace" className="card hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-center w-10 h-10 rounded-md bg-primary-light">
-                        <Zap className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="card-title">List a Resource</h3>
-                        <p className="text-xs text-gray-500">Share your tools with non-profits</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="/marketplace" className="card hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-center w-10 h-10 rounded-md bg-secondary-light">
-                        <MessageSquare className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div>
-                        <h3 className="card-title">Review Requests</h3>
-                        <p className="text-xs text-gray-500">3 pending requests</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="/impact" className="card hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-center w-10 h-10 rounded-md bg-accent-light">
-                        <BarChart3 className="w-5 h-5 text-accent" />
-                      </div>
-                      <div>
-                        <h3 className="card-title">View Impact</h3>
-                        <p className="text-xs text-gray-500">See your outcomes</p>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-4">Recent Activity</h2>
-                <div className="space-y-3">
-                  <div className="card">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">Request approved: AI Content Moderation</p>
-                        <p className="text-sm text-gray-500">Approved for Global Education Initiative</p>
-                      </div>
-                      <span className="text-xs text-gray-500">2 hours ago</span>
-                    </div>
-                  </div>
-                  <div className="card">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">New match found: Data Analytics Platform</p>
-                        <p className="text-sm text-gray-500">92% match with Community Health Network</p>
-                      </div>
-                      <span className="text-xs text-gray-500">1 day ago</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      {/* Main Content Container */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {/* Donor Incentive & Resource Commitment Engine (Phase 16) */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Donor Incentive & Resource Commitment Engine
+              </h2>
+              <p className="text-xs text-gray-500">
+                Manage your 3-Tier commitments, scheduled off-peak windows, monthly SLA fulfillments, and GRI-aligned CSR reports.
+              </p>
             </div>
-          </>
-        ) : (
-          <>
-            {/* Non-Profit Dashboard */}
-            <div className="space-y-8">
-              {/* Key Metrics */}
-              <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-4">Your Resources</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <Zap className="w-5 h-5 text-primary" />
-                      <span className="text-xs text-gray-500">Total</span>
-                    </div>
-                    <div className="metric-value metric-value-primary">342</div>
-                    <div className="metric-label">Resources received</div>
-                  </div>
+            <button
+              onClick={() => setActiveCsrDonorId(user?.id || 1)}
+              className="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 cursor-pointer"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5 text-purple-600" /> View CSR Ledger
+            </button>
+          </div>
 
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <Award className="w-5 h-5 text-secondary" />
-                      <span className="text-xs text-gray-500">Active</span>
-                    </div>
-                    <div className="metric-value metric-value-secondary">125+</div>
-                    <div className="metric-label">Projects enabled</div>
-                  </div>
+          <DonorPledgeManager
+            donorId={user?.id || 1}
+            onOpenBenchmark={(resId) => setBenchmarkResourceId(resId)}
+            onOpenCsr={(dId) => setActiveCsrDonorId(dId)}
+          />
+        </section>
 
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <Users className="w-5 h-5 text-accent" />
-                      <span className="text-xs text-gray-500">Estimated</span>
-                    </div>
-                    <div className="metric-value metric-value-accent">50K+</div>
-                    <div className="metric-label">People impacted</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="flex items-center justify-between mb-2">
-                      <TrendingUp className="w-5 h-5 text-primary" />
-                      <span className="text-xs text-gray-500">This month</span>
-                    </div>
-                    <div className="metric-value metric-value-primary">+12</div>
-                    <div className="metric-label">New resources</div>
-                  </div>
-                </div>
+        {/* Aggregate Impact Statistics */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Cumulative Platform Impact</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <Zap className="w-5 h-5 text-purple-600" />
+                <span className="text-xs text-gray-400">Monthly</span>
               </div>
-
-              {/* Quick Actions */}
-              <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <a href="/marketplace" className="card hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-center w-10 h-10 rounded-md bg-primary-light">
-                        <Zap className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="card-title">Browse Resources</h3>
-                        <p className="text-xs text-gray-500">Find new tools and agents</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="/coalition" className="card hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-center w-10 h-10 rounded-md bg-secondary-light">
-                        <Users className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div>
-                        <h3 className="card-title">Join Coalition</h3>
-                        <p className="text-xs text-gray-500">Partner with other non-profits</p>
-                      </div>
-                    </div>
-                  </a>
-
-                  <a href="/grant-assistant" className="card hover:border-primary transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-center w-10 h-10 rounded-md bg-accent-light">
-                        <BarChart3 className="w-5 h-5 text-accent" />
-                      </div>
-                      <div>
-                        <h3 className="card-title">Write Grant</h3>
-                        <p className="text-xs text-gray-500">AI-powered assistance</p>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              {/* Pending Requests */}
-              <div>
-                <h2 className="text-xl font-medium text-gray-900 mb-4">Pending Requests</h2>
-                <div className="space-y-3">
-                  <div className="card">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">AI Content Moderation Agent</p>
-                        <p className="text-sm text-gray-500">Requested from TechCorp Inc.</p>
-                      </div>
-                      <span className="badge badge-high-demand">Pending</span>
-                    </div>
-                  </div>
-                  <div className="card">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">Cloud Computing Credits</p>
-                        <p className="text-sm text-gray-500">Requested from CloudServices Ltd.</p>
-                      </div>
-                      <span className="badge badge-verified">Approved</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <div className="text-2xl font-bold text-gray-900">2,450 hrs</div>
+              <div className="text-xs text-gray-500 mt-1">GPU Compute & Agents Shared</div>
             </div>
-          </>
-        )}
+
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <Users className="w-5 h-5 text-[#1D9E75]" />
+                <span className="text-xs text-gray-400">Active</span>
+              </div>
+              <div className="text-2xl font-bold text-[#1D9E75]">42 Orgs</div>
+              <div className="text-xs text-gray-500 mt-1">Non-Profits Empowered</div>
+            </div>
+
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <Award className="w-5 h-5 text-amber-600" />
+                <span className="text-xs text-gray-400">Total</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">89,000+</div>
+              <div className="text-xs text-gray-500 mt-1">Community Beneficiaries</div>
+            </div>
+
+            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <TrendingUp className="w-5 h-5 text-emerald-600" />
+                <span className="text-xs text-gray-400">SLA Rate</span>
+              </div>
+              <div className="text-2xl font-bold text-emerald-600">99.85%</div>
+              <div className="text-xs text-gray-500 mt-1">Uptime & Latency SLA Passed</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Actions Grid */}
+        <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a
+              href="/marketplace"
+              className="p-5 rounded-xl bg-white border border-gray-200 hover:border-[#1D9E75] transition-all shadow-xs group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-[#1D9E75]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-[#1D9E75] transition-colors">
+                    Resource Marketplace
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">Browse SLA-benchmarked AI models & compute</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              href="/impact-wall"
+              className="p-5 rounded-xl bg-white border border-gray-200 hover:border-purple-400 transition-all shadow-xs group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                    Public Impact Wall
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">View verified donor tiers & ESG credentials</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              href="/grant-assistant"
+              className="p-5 rounded-xl bg-white border border-gray-200 hover:border-amber-400 transition-all shadow-xs group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">
+                    Grant Writing Assistant
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">AI-powered 501(c)(3) proposal generator</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
       </div>
+
+      {/* Modals */}
+      {benchmarkResourceId !== null && (
+        <BenchmarkRunnerModal
+          isOpen={true}
+          onClose={() => setBenchmarkResourceId(null)}
+          resourceId={benchmarkResourceId}
+          resourceTitle="Pledged GPU Cluster SLA Test"
+          resourceType="gpu_compute"
+        />
+      )}
+
+      {activeCsrDonorId !== null && (
+        <CsrReportViewer
+          isOpen={true}
+          onClose={() => setActiveCsrDonorId(null)}
+          donorId={activeCsrDonorId}
+          donorName={user?.name || "Nexus DeepMind Labs"}
+        />
+      )}
     </div>
   );
 }

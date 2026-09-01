@@ -472,6 +472,217 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // ============ PHASE 16: DONOR INCENTIVE & COMMITMENT ENGINE ============
+  incentive: router({
+    getDonorTier: publicProcedure
+      .input(z.object({ donorId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getDonorIncentiveTier(input.donorId);
+      }),
+
+    getMyTier: donorProcedure.query(async ({ ctx }) => {
+      return db.getDonorIncentiveTier(ctx.user!.id);
+    }),
+
+    setDonorTier: donorProcedure
+      .input(
+        z.object({
+          tier: z.enum(["impact_ally", "equity_champion", "founding_partner"]),
+          monthlyPledgeAmount: z.number().positive(),
+          pledgeUnit: z.enum(["gpu_hours", "api_calls", "agent_hours", "compute_units"]),
+          badgePublic: z.boolean().optional(),
+          csrReportsEnabled: z.boolean().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const result = await db.createOrUpdateDonorIncentiveTier(ctx.user!.id, input);
+        await db.logDonorIncentiveEvent(ctx.user!.id, "pledge_created", {
+          tier: input.tier,
+          monthlyPledgeAmount: input.monthlyPledgeAmount,
+          unit: input.pledgeUnit,
+        });
+        return result;
+      }),
+
+    getPledges: publicProcedure
+      .input(z.object({ donorId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getDonorPledges(input.donorId);
+      }),
+
+    getMyPledges: donorProcedure.query(async ({ ctx }) => {
+      return db.getDonorPledges(ctx.user!.id);
+    }),
+
+    createPledge: donorProcedure
+      .input(
+        z.object({
+          resourceType: z.enum(["ai_agent", "gpu_compute", "data_processing", "software_tool"]),
+          quantity: z.number().positive(),
+          unit: z.string().min(1),
+          availabilityWindows: z.array(
+            z.object({
+              day: z.string(),
+              startTime: z.string(),
+              endTime: z.string(),
+            })
+          ),
+          startDate: z.date().or(z.string().transform(s => new Date(s))),
+          endDate: z.date().or(z.string().transform(s => new Date(s))).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const pledge = await db.createResourcePledge(ctx.user!.id, {
+          ...input,
+          startDate: new Date(input.startDate),
+          endDate: input.endDate ? new Date(input.endDate) : undefined,
+        });
+        await db.logDonorIncentiveEvent(ctx.user!.id, "pledge_created", {
+          resourceType: input.resourceType,
+          quantity: input.quantity,
+          unit: input.unit,
+        });
+        return pledge;
+      }),
+
+    updatePledgeStatus: donorProcedure
+      .input(
+        z.object({
+          pledgeId: z.number(),
+          status: z.enum(["active", "paused", "completed", "cancelled"]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return db.updateResourcePledgeStatus(input.pledgeId, input.status);
+      }),
+
+    getFulfillmentHistory: publicProcedure
+      .input(z.object({ pledgeId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getPledgeFulfillmentHistory(input.pledgeId);
+      }),
+
+    logFulfillment: protectedProcedure
+      .input(
+        z.object({
+          pledgeId: z.number(),
+          month: z.string(), // YYYY-MM
+          pledgedAmount: z.number().positive(),
+          deliveredAmount: z.number().nonnegative(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const log = await db.logPledgeFulfillment(input.pledgeId, input.month, {
+          pledgedAmount: input.pledgedAmount,
+          deliveredAmount: input.deliveredAmount,
+          donorId: ctx.user?.id,
+        });
+
+        if (input.deliveredAmount < input.pledgedAmount * 0.8) {
+          await db.logDonorIncentiveEvent(ctx.user?.id || 1, "pledge_under_delivery", {
+            pledgeId: input.pledgeId,
+            month: input.month,
+            shortfallPercentage: (((input.pledgedAmount - input.deliveredAmount) / input.pledgedAmount) * 100).toFixed(1),
+          });
+        }
+
+        return log;
+      }),
+
+    runBenchmark: protectedProcedure
+      .input(
+        z.object({
+          resourceId: z.number(),
+          resourceType: z.enum(["ai_agent", "gpu_compute", "data_processing", "software_tool"]),
+          customOverrides: z
+            .object({
+              latencyP95Ms: z.number().optional(),
+              uptimePercentage: z.number().optional(),
+              tokenLimit: z.number().optional(),
+              throughputBenchmark: z.string().optional(),
+              jobCompletionSlaHours: z.number().optional(),
+            })
+            .optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const result = await db.runResourceBenchmark(input.resourceId, input.resourceType, input.customOverrides);
+        return result;
+      }),
+
+    getResourceBenchmark: publicProcedure
+      .input(z.object({ resourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getResourceBenchmark(input.resourceId);
+      }),
+
+    submitRating: protectedProcedure
+      .input(
+        z.object({
+          resourceId: z.number(),
+          rating: z.number().min(1).max(5),
+          latencyRating: z.number().min(1).max(5).optional(),
+          reliabilityRating: z.number().min(1).max(5).optional(),
+          feedback: z.string().optional(),
+          requestId: z.number().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const rating = await db.createResourceRating({
+          ...input,
+          nonprofitId: ctx.user!.id,
+        });
+
+        if (input.rating < 3) {
+          await db.logDonorIncentiveEvent(1, "quality_issue", {
+            resourceId: input.resourceId,
+            rating: input.rating,
+            feedback: input.feedback,
+          });
+        }
+
+        return rating;
+      }),
+
+    getResourceRatings: publicProcedure
+      .input(z.object({ resourceId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getResourceRatings(input.resourceId);
+      }),
+
+    getCsrReports: publicProcedure
+      .input(z.object({ donorId: z.number() }))
+      .query(async ({ input }) => {
+        return db.getDonorCsrReports(input.donorId);
+      }),
+
+    generateCsrReport: donorProcedure
+      .input(z.object({ month: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const report = await db.generateCsrReport(ctx.user!.id, input.month);
+        await db.logDonorIncentiveEvent(ctx.user!.id, "csr_report_generated", {
+          month: input.month,
+          reportId: report.id,
+        });
+        return report;
+      }),
+
+    getImpactWall: publicProcedure
+      .input(z.object({ slugOrId: z.union([z.string(), z.number()]) }))
+      .query(async ({ input }) => {
+        return db.getDonorImpactWall(input.slugOrId);
+      }),
+
+    getFeaturedDonors: publicProcedure.query(async () => {
+      return db.getAllFeaturedImpactWalls();
+    }),
+
+    getAdminPledgeMonitor: adminProcedure.query(async () => {
+      return db.getAdminPledgeMonitor();
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
+
