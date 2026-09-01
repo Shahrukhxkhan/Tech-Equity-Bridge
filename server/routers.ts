@@ -747,7 +747,109 @@ export const appRouter = router({
         };
       }),
   }),
+
+  // ============ COALITION WORKSPACE & TASK MANAGEMENT ============
+  coalitionWorkspace: router({
+    getTasks: publicProcedure
+      .input(z.object({ coalitionId: z.number().default(1) }))
+      .query(async ({ input }) => {
+        return db.getCoalitionTasks(input.coalitionId);
+      }),
+
+    createTask: publicProcedure
+      .input(
+        z.object({
+          coalitionId: z.number().default(1),
+          title: z.string().min(1),
+          description: z.string().optional(),
+          assigneeName: z.string().optional(),
+          assigneeOrg: z.string().optional(),
+          stage: z.enum(["backlog", "todo", "in_progress", "review", "done"]).optional(),
+          priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+          dueDate: z.date().or(z.string().transform(s => new Date(s))).optional(),
+          tags: z.array(z.string()).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return db.createCoalitionTask(input.coalitionId, {
+          ...input,
+          dueDate: input.dueDate ? new Date(input.dueDate) : undefined,
+        });
+      }),
+
+    updateTaskStage: publicProcedure
+      .input(
+        z.object({
+          taskId: z.number(),
+          stage: z.enum(["backlog", "todo", "in_progress", "review", "done"]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return db.updateCoalitionTaskStage(input.taskId, input.stage);
+      }),
+
+    deleteTask: publicProcedure
+      .input(z.object({ taskId: z.number() }))
+      .mutation(async ({ input }) => {
+        return db.deleteCoalitionTask(input.taskId);
+      }),
+
+    getResourcePools: publicProcedure
+      .input(z.object({ coalitionId: z.number().default(1) }))
+      .query(async ({ input }) => {
+        return db.getCoalitionResourcePools(input.coalitionId);
+      }),
+
+    updateMemberAllocation: publicProcedure
+      .input(
+        z.object({
+          poolId: z.number(),
+          memberAllocations: z.array(
+            z.object({
+              nonprofitId: z.number(),
+              orgName: z.string(),
+              allocatedAmount: z.number().nonnegative(),
+              usedAmount: z.number().nonnegative(),
+              contactPerson: z.string(),
+            })
+          ),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return db.updateCoalitionMemberAllocation(input.poolId, input.memberAllocations);
+      }),
+  }),
+
+  // ============ REAL-TIME COLLABORATION & LIVE CHAT ============
+  collaboration: router({
+    getThreadMessages: publicProcedure
+      .input(z.object({ requestId: z.number().default(1) }))
+      .query(async ({ input }) => {
+        return db.getRequestThreadMessages(input.requestId);
+      }),
+
+    sendMessage: publicProcedure
+      .input(
+        z.object({
+          requestId: z.number().default(1),
+          senderId: z.number().default(1),
+          senderName: z.string(),
+          senderRole: z.enum(["donor", "nonprofit", "admin"]).optional(),
+          content: z.string().min(1),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return db.sendRequestThreadMessage(input);
+      }),
+
+    getLiveNotifications: publicProcedure
+      .input(z.object({ userId: z.number().default(1) }))
+      .query(async ({ input }) => {
+        return db.getUserLiveNotifications(input.userId);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
+
 

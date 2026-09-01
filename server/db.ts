@@ -24,6 +24,8 @@ import {
   donorIncentiveEvents,
   csrReports,
   donorImpactWalls,
+  coalitionTasks,
+  coalitionResourcePools,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -1689,5 +1691,387 @@ export function generateContextAwareGrantSection(
         `Guided by our mission to "${mission}", we will deploy these resources to achieve sustained, measurable impact.`;
   }
 }
+
+/**
+ * =============================================================================
+ * Collaboration & Real-Time Features Helpers
+ * =============================================================================
+ */
+
+// Memory stores for collaboration when DB is not connected
+const collaborationStore = {
+  tasks: new Map<number, any[]>(),
+  pools: new Map<number, any[]>(),
+  messages: new Map<number, any[]>(),
+  notifications: new Map<number, any[]>(),
+};
+
+/**
+ * Coalition Milestone Kanban Tasks
+ */
+export async function getCoalitionTasks(coalitionId: number) {
+  const db = await getDb();
+  if (!db) {
+    return collaborationStore.tasks.get(coalitionId) || [
+      {
+        id: 1,
+        coalitionId,
+        title: "Deploy Multilingual Translation Agent in 4 Clinics",
+        description: "Configure Nexus DeepMind translation endpoint on local clinic tablets and train intake staff.",
+        assigneeName: "Elena Rostova",
+        assigneeOrg: "Community Health Net",
+        stage: "in_progress",
+        priority: "urgent",
+        dueDate: new Date("2026-09-15"),
+        tags: ["Deployment", "Training", "Health AI"],
+        createdAt: new Date("2026-08-20"),
+      },
+      {
+        id: 2,
+        coalitionId,
+        title: "Consolidate GIS Transit Deserts Dataset",
+        description: "Merge county bus telemetry with demographic survey data using DataViz ETL pipeline.",
+        assigneeName: "Marcus Vance",
+        assigneeOrg: "Urban Transit Alliance",
+        stage: "review",
+        priority: "high",
+        dueDate: new Date("2026-09-10"),
+        tags: ["Data ETL", "GIS", "Demographics"],
+        createdAt: new Date("2026-08-22"),
+      },
+      {
+        id: 3,
+        coalitionId,
+        title: "Draft Joint $250k Federal Equity Grant Proposal",
+        description: "Use Grant Assistant v2 to compile shared impact metrics and budget narrative.",
+        assigneeName: "Sarah Chen",
+        assigneeOrg: "Civic Literacy Foundation",
+        stage: "todo",
+        priority: "high",
+        dueDate: new Date("2026-09-30"),
+        tags: ["Grant Writing", "Budget", "Coalition"],
+        createdAt: new Date("2026-08-25"),
+      },
+      {
+        id: 4,
+        coalitionId,
+        title: "Finalize Partner MOU & Shared Compute Terms",
+        description: "Approved by all 5 founding non-profit steering committee members.",
+        assigneeName: "David Kim",
+        assigneeOrg: "Lead Coordinator",
+        stage: "done",
+        priority: "medium",
+        dueDate: new Date("2026-08-15"),
+        tags: ["Governance", "Legal"],
+        createdAt: new Date("2026-08-01"),
+      },
+      {
+        id: 5,
+        coalitionId,
+        title: "Quarterly Community Town Hall Presentation",
+        description: "Prepare slide deck highlighting 12,000+ residents served via coalition AI agents.",
+        assigneeName: "Elena Rostova",
+        assigneeOrg: "Community Health Net",
+        stage: "backlog",
+        priority: "low",
+        dueDate: new Date("2026-10-15"),
+        tags: ["Public Reporting", "Town Hall"],
+        createdAt: new Date("2026-08-28"),
+      },
+    ];
+  }
+
+  return db
+    .select()
+    .from(coalitionTasks)
+    .where(eq(coalitionTasks.coalitionId, coalitionId))
+    .orderBy(desc(coalitionTasks.createdAt));
+}
+
+export async function createCoalitionTask(coalitionId: number, data: {
+  title: string;
+  description?: string;
+  assigneeName?: string;
+  assigneeOrg?: string;
+  stage?: "backlog" | "todo" | "in_progress" | "review" | "done";
+  priority?: "low" | "medium" | "high" | "urgent";
+  dueDate?: Date;
+  tags?: string[];
+}) {
+  const db = await getDb();
+  const newTask = {
+    id: Date.now(),
+    coalitionId,
+    title: data.title,
+    description: data.description || "",
+    assigneeName: data.assigneeName || "Unassigned",
+    assigneeOrg: data.assigneeOrg || "Member Org",
+    stage: data.stage || "todo",
+    priority: data.priority || "medium",
+    dueDate: data.dueDate || new Date(Date.now() + 14 * 86400000),
+    tags: data.tags || ["General"],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  if (!db) {
+    const list = collaborationStore.tasks.get(coalitionId) || [];
+    list.unshift(newTask);
+    collaborationStore.tasks.set(coalitionId, list);
+    return newTask;
+  }
+
+  const result = await db.insert(coalitionTasks).values(newTask);
+  return { id: (result as any).insertId || newTask.id, ...newTask };
+}
+
+export async function updateCoalitionTaskStage(taskId: number, stage: "backlog" | "todo" | "in_progress" | "review" | "done") {
+  const db = await getDb();
+  if (!db) {
+    for (const [coalitionId, list] of collaborationStore.tasks.entries()) {
+      const task = list.find(t => t.id === taskId);
+      if (task) {
+        task.stage = stage;
+        task.updatedAt = new Date();
+        return task;
+      }
+    }
+    return { id: taskId, stage };
+  }
+
+  await db.update(coalitionTasks).set({ stage, updatedAt: new Date() }).where(eq(coalitionTasks.id, taskId));
+  return { id: taskId, stage };
+}
+
+export async function deleteCoalitionTask(taskId: number) {
+  const db = await getDb();
+  if (!db) {
+    for (const [coalitionId, list] of collaborationStore.tasks.entries()) {
+      const idx = list.findIndex(t => t.id === taskId);
+      if (idx !== -1) {
+        list.splice(idx, 1);
+        return { success: true };
+      }
+    }
+    return { success: true };
+  }
+
+  await db.delete(coalitionTasks).where(eq(coalitionTasks.id, taskId));
+  return { success: true };
+}
+
+/**
+ * Shared Resource Pool Management (Splitting Allocated Capacity)
+ */
+export async function getCoalitionResourcePools(coalitionId: number) {
+  const db = await getDb();
+  if (!db) {
+    return collaborationStore.pools.get(coalitionId) || [
+      {
+        id: 101,
+        coalitionId,
+        poolName: "Metropolitan GPU Inference Cluster Pool",
+        resourceType: "gpu_compute",
+        totalCapacity: "5000.00",
+        unit: "NVIDIA A100 GPU Hours",
+        allocatedMembers: [
+          { nonprofitId: 1, orgName: "Community Health Net", allocatedAmount: 1800, usedAmount: 1450, contactPerson: "Elena Rostova" },
+          { nonprofitId: 2, orgName: "Urban Transit Alliance", allocatedAmount: 1400, usedAmount: 980, contactPerson: "Marcus Vance" },
+          { nonprofitId: 3, orgName: "Civic Literacy Foundation", allocatedAmount: 1200, usedAmount: 850, contactPerson: "Sarah Chen" },
+          { nonprofitId: 4, orgName: "Food Security Hub", allocatedAmount: 600, usedAmount: 220, contactPerson: "David Kim" },
+        ],
+        createdAt: new Date("2026-08-01"),
+      },
+      {
+        id: 102,
+        coalitionId,
+        poolName: "Multilingual AI Translation Agent Quota Pool",
+        resourceType: "ai_agent",
+        totalCapacity: "250000.00",
+        unit: "Inference Queries",
+        allocatedMembers: [
+          { nonprofitId: 1, orgName: "Community Health Net", allocatedAmount: 120000, usedAmount: 95400, contactPerson: "Elena Rostova" },
+          { nonprofitId: 3, orgName: "Civic Literacy Foundation", allocatedAmount: 80000, usedAmount: 48000, contactPerson: "Sarah Chen" },
+          { nonprofitId: 4, orgName: "Food Security Hub", allocatedAmount: 50000, usedAmount: 18500, contactPerson: "David Kim" },
+        ],
+        createdAt: new Date("2026-08-05"),
+      }
+    ];
+  }
+
+  return db
+    .select()
+    .from(coalitionResourcePools)
+    .where(eq(coalitionResourcePools.coalitionId, coalitionId));
+}
+
+export async function updateCoalitionMemberAllocation(poolId: number, memberAllocations: Array<{
+  nonprofitId: number;
+  orgName: string;
+  allocatedAmount: number;
+  usedAmount: number;
+  contactPerson: string;
+}>) {
+  const db = await getDb();
+  if (!db) {
+    for (const [coalitionId, list] of collaborationStore.pools.entries()) {
+      const pool = list.find(p => p.id === poolId);
+      if (pool) {
+        pool.allocatedMembers = memberAllocations;
+        pool.updatedAt = new Date();
+        return pool;
+      }
+    }
+    return null;
+  }
+
+  await db
+    .update(coalitionResourcePools)
+    .set({ allocatedMembers: memberAllocations, updatedAt: new Date() })
+    .where(eq(coalitionResourcePools.id, poolId));
+
+  return { success: true };
+}
+
+/**
+ * Live Request Evaluation Chat & Real-Time Messaging
+ */
+export async function getRequestThreadMessages(requestId: number) {
+  const db = await getDb();
+  if (!db) {
+    return collaborationStore.messages.get(requestId) || [
+      {
+        id: 1,
+        requestId,
+        senderId: 1,
+        senderName: "Dr. Aris Thorne (Nexus DeepMind)",
+        senderRole: "donor",
+        content: "Hi Elena! We reviewed your proposal for deploying the Multilingual Health Agent across your 4 clinic sites. Can you confirm if you have tablet hardware ready for the pilot?",
+        createdAt: new Date("2026-08-28T14:30:00Z"),
+      },
+      {
+        id: 2,
+        requestId,
+        senderId: 2,
+        senderName: "Elena Rostova (Community Health Net)",
+        senderRole: "nonprofit",
+        content: "Hello Dr. Thorne! Yes, we have 16 Samsung Galaxy tablets secured through a municipal digital inclusion grant. They are configured and ready for the translation client.",
+        createdAt: new Date("2026-08-28T15:15:00Z"),
+      },
+      {
+        id: 3,
+        requestId,
+        senderId: 1,
+        senderName: "Dr. Aris Thorne (Nexus DeepMind)",
+        senderRole: "donor",
+        content: "Fantastic. We've provisioned 1,500 dedicated monthly GPU inference hours on our A100 cluster and approved your capacity request. Looking forward to your milestone check-in next month!",
+        createdAt: new Date("2026-08-28T16:00:00Z"),
+      },
+    ];
+  }
+
+  return db
+    .select()
+    .from(messages)
+    .where(eq(messages.requestId, requestId))
+    .orderBy(asc(messages.createdAt));
+}
+
+export async function sendRequestThreadMessage(data: {
+  requestId: number;
+  senderId: number;
+  senderName: string;
+  senderRole?: "donor" | "nonprofit" | "admin";
+  content: string;
+  recipientId?: number;
+}) {
+  const db = await getDb();
+  const newMsg = {
+    id: Date.now(),
+    requestId: data.requestId,
+    senderId: data.senderId,
+    senderName: data.senderName,
+    senderRole: data.senderRole || "nonprofit",
+    recipientId: data.recipientId || 1,
+    content: data.content,
+    isRead: false,
+    createdAt: new Date(),
+  };
+
+  if (!db) {
+    const list = collaborationStore.messages.get(data.requestId) || [];
+    list.push(newMsg);
+    collaborationStore.messages.set(data.requestId, list);
+    return newMsg;
+  }
+
+  const result = await db.insert(messages).values({
+    requestId: data.requestId,
+    senderId: data.senderId,
+    recipientId: data.recipientId || 1,
+    content: data.content,
+    isRead: false,
+  });
+
+  return { id: (result as any).insertId || newMsg.id, ...newMsg };
+}
+
+/**
+ * Live Notification Updates
+ */
+export async function getUserLiveNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    return collaborationStore.notifications.get(userId) || [
+      {
+        id: 1,
+        userId,
+        type: "request_approved",
+        title: "Capacity Request Approved! 🎉",
+        message: "Nexus DeepMind Labs approved 1,500 GPU hours for Multilingual Health Translation Agent.",
+        timestamp: "10 minutes ago",
+        read: false,
+        actionUrl: "/dashboard",
+      },
+      {
+        id: 2,
+        userId,
+        type: "message_received",
+        title: "New Message from Donor",
+        message: "Dr. Thorne sent you a message regarding your hardware readiness.",
+        timestamp: "1 hour ago",
+        read: false,
+        actionUrl: "/coalition",
+      },
+      {
+        id: 3,
+        userId,
+        type: "new_match",
+        title: "97% Semantic Resource Match",
+        message: "A new Youth Literacy Tutor Agent was pledged that strongly matches your mission.",
+        timestamp: "5 hours ago",
+        read: true,
+        actionUrl: "/marketplace",
+      },
+      {
+        id: 4,
+        userId,
+        type: "coalition_invitation",
+        title: "Coalition Milestone Update",
+        message: "Task 'Consolidate GIS Transit Deserts Dataset' moved to In Review.",
+        timestamp: "1 day ago",
+        read: true,
+        actionUrl: "/coalition",
+      },
+    ];
+  }
+
+  return db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, userId))
+    .orderBy(desc(notifications.createdAt));
+}
+
 
 

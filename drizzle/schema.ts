@@ -510,3 +510,49 @@ export const resourceRatings = mysqlTable("resourceRatings", {
 export type ResourceRating = typeof resourceRatings.$inferSelect;
 export type InsertResourceRating = typeof resourceRatings.$inferInsert;
 
+/**
+ * Coalition Tasks - Milestone Kanban board tasks for joint tech initiatives
+ */
+export const coalitionTasks = mysqlTable("coalitionTasks", {
+  id: int("id").autoincrement().primaryKey(),
+  coalitionId: int("coalitionId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: longtext("description"),
+  assigneeName: varchar("assigneeName", { length: 255 }),
+  assigneeOrg: varchar("assigneeOrg", { length: 255 }),
+  stage: mysqlEnum("stage", ["backlog", "todo", "in_progress", "review", "done"]).default("todo").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  dueDate: timestamp("dueDate"),
+  tags: json("tags").$type<string[]>().default([]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CoalitionTask = typeof coalitionTasks.$inferSelect;
+export type InsertCoalitionTask = typeof coalitionTasks.$inferInsert;
+
+/**
+ * Coalition Resource Pools - Shared GPU & Agent Capacity Allocation
+ */
+export const coalitionResourcePools = mysqlTable("coalitionResourcePools", {
+  id: int("id").autoincrement().primaryKey(),
+  coalitionId: int("coalitionId").notNull(),
+  poolName: varchar("poolName", { length: 255 }).notNull(),
+  resourceType: mysqlEnum("resourceType", ["gpu_compute", "ai_agent", "data_processing", "software_tool"]).notNull(),
+  totalCapacity: decimal("totalCapacity", { precision: 12, scale: 2 }).notNull(),
+  unit: varchar("unit", { length: 50 }).notNull(),
+  allocatedMembers: json("allocatedMembers").$type<Array<{
+    nonprofitId: number;
+    orgName: string;
+    allocatedAmount: number;
+    usedAmount: number;
+    contactPerson: string;
+  }>>().default([]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CoalitionResourcePool = typeof coalitionResourcePools.$inferSelect;
+export type InsertCoalitionResourcePool = typeof coalitionResourcePools.$inferInsert;
+
+
