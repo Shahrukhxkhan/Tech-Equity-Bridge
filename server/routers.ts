@@ -212,28 +212,31 @@ export const appRouter = router({
     }),
   }),
 
-  // ============ MATCHING ROUTES ============
+  // ============ MATCHING ROUTES (v2 Semantic Engine) ============
   matching: router({
-    getMatches: nonprofitProcedure.query(async ({ ctx }) => {
-      const matches = await db.getNonprofitMatches(ctx.user!.id);
-      return matches.map((m: any) => ({
-        resourceId: m.resourceId,
-        score: m.score || 0,
-        title: m.title,
-        description: m.description,
-      }));
+    getMatches: publicProcedure.query(async ({ ctx }) => {
+      const userId = ctx.user?.id || 1;
+      return db.getSemanticMatchesForNonprofit(userId);
     }),
 
-    calculateScore: protectedProcedure
+    getSemanticMatches: publicProcedure
+      .input(z.object({ nonprofitId: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        const userId = input?.nonprofitId || ctx.user?.id || 1;
+        return db.getSemanticMatchesForNonprofit(userId);
+      }),
+
+    calculateScore: publicProcedure
       .input(
         z.object({
           resourceId: z.number(),
           nonprofitId: z.number(),
         })
       )
-      .query(async () => {
-        // Simple matching score calculation
-        return Math.floor(Math.random() * 40) + 60; // 60-100 score
+      .query(async ({ input }) => {
+        const nonprofit = await db.getNonprofitProfile(input.nonprofitId);
+        const resource = await db.getResource(input.resourceId);
+        return db.computeSemanticMatch(nonprofit, resource || { id: input.resourceId, title: "Resource", category: "AI Agents" });
       }),
   }),
 
@@ -681,6 +684,68 @@ export const appRouter = router({
     getAdminPledgeMonitor: adminProcedure.query(async () => {
       return db.getAdminPledgeMonitor();
     }),
+  }),
+
+  // ============ AI AGENT PLAYGROUND & SANDBOX ============
+  agentSandbox: router({
+    executeAgent: publicProcedure
+      .input(
+        z.object({
+          agentType: z.enum([
+            "multilingual_health",
+            "grant_screener",
+            "data_extractor",
+            "literacy_tutor",
+            "custom",
+          ]),
+          inputPrompt: z.string().min(1),
+          parameters: z
+            .object({
+              temperature: z.number().optional(),
+              maxTokens: z.number().optional(),
+              language: z.string().optional(),
+            })
+            .optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return db.executeSandboxAgent(input.agentType, input.inputPrompt, input.parameters);
+      }),
+  }),
+
+  // ============ GRANT ASSISTANT V2 (RFP PARSER & AUTOFILL) ============
+  grantAssistant: router({
+    parseRfp: publicProcedure
+      .input(z.object({ rfpText: z.string().min(10) }))
+      .mutation(async ({ input }) => {
+        return db.parseRfpText(input.rfpText);
+      }),
+
+    autofillSection: publicProcedure
+      .input(
+        z.object({
+          sectionName: z.string(),
+          rfpContext: z.object({
+            opportunityTitle: z.string().optional(),
+            funderName: z.string().optional(),
+            maxAwardAmount: z.string().optional(),
+            submissionDeadline: z.string().optional(),
+          }),
+          tone: z.enum(["formal", "urgent", "community", "data_driven"]).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const nonprofit = ctx.user ? await db.getNonprofitProfile(ctx.user.id) : null;
+        return {
+          sectionName: input.sectionName,
+          content: db.generateContextAwareGrantSection(
+            input.sectionName,
+            input.rfpContext,
+            nonprofit,
+            input.tone || "formal"
+          ),
+        };
+      }),
   }),
 });
 

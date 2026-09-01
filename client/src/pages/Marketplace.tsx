@@ -266,6 +266,15 @@ export default function Marketplace() {
 
                 {/* Card Action Buttons */}
                 <div className="flex items-center gap-2">
+                  <a
+                    href={`/sandbox`}
+                    className="py-2 px-2.5 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-medium inline-flex items-center justify-center gap-1 cursor-pointer"
+                    title="Test-run in Interactive AI Sandbox"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    Sandbox
+                  </a>
+
                   <button
                     onClick={() =>
                       setBenchmarkResource({
@@ -274,18 +283,18 @@ export default function Marketplace() {
                         type: resource.category === "AI Agents" ? "ai_agent" : "gpu_compute",
                       })
                     }
-                    className="py-2 px-3 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs font-medium text-gray-700 inline-flex items-center justify-center gap-1 cursor-pointer"
+                    className="py-2 px-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-xs font-medium text-gray-700 inline-flex items-center justify-center gap-1 cursor-pointer"
                     title="Live SLA Benchmark Test"
                   >
                     <Activity className="w-3.5 h-3.5 text-[#1D9E75]" />
-                    Test SLA
+                    SLA Test
                   </button>
 
                   <button
                     onClick={() => handleRequestResource(resource.title)}
                     className="flex-1 py-2 px-3 rounded-lg bg-[#1D9E75] hover:bg-[#16815f] text-white text-xs font-medium inline-flex items-center justify-center gap-1 cursor-pointer"
                   >
-                    Request Capacity
+                    Request
                   </button>
                 </div>
               </div>

@@ -12,6 +12,7 @@ import NotificationCenter from "@/pages/NotificationCenter";
 import AdminDashboard from "@/pages/AdminDashboard";
 import ImpactWall from "@/pages/ImpactWall";
 import PledgeMonitor from "@/pages/PledgeMonitor";
+import AgentSandbox from "@/pages/AgentSandbox";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -28,6 +29,8 @@ function Router() {
       <Route path="/impact-wall" component={ImpactWall} />
       <Route path="/impact-wall/:slug" component={ImpactWall} />
       <Route path="/donors" component={ImpactWall} />
+      <Route path="/sandbox" component={AgentSandbox} />
+      <Route path="/agent-sandbox" component={AgentSandbox} />
       <Route path="/grant-assistant" component={GrantAssistant} />
       <Route path="/grants" component={GrantAssistant} />
       <Route path="/notifications" component={NotificationCenter} />
