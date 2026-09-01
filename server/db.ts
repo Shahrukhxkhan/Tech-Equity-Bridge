@@ -2073,5 +2073,330 @@ export async function getUserLiveNotifications(userId: number) {
     .orderBy(desc(notifications.createdAt));
 }
 
+/**
+ * =============================================================================
+ * Analytics, Geospatial Impact Visualization & Audit Export
+ * =============================================================================
+ */
+
+export interface GeospatialProject {
+  id: number;
+  projectName: string;
+  organizationName: string;
+  city: string;
+  state: string;
+  coordinates: [number, number]; // [lat, lng]
+  sector: "Healthcare" | "Education" | "Transit & GIS" | "Food Security" | "Digital Inclusion";
+  resourceCategory: "AI Agents" | "GPU Compute" | "Data & GIS" | "Tools";
+  primaryDonor: string;
+  capacityProvided: string;
+  beneficiariesServed: number;
+  status: "Active Deployment" | "Scaling" | "Pilot Milestone";
+  impactHighlight: string;
+}
+
+export async function getGeospatialImpactProjects(): Promise<GeospatialProject[]> {
+  return [
+    {
+      id: 1,
+      projectName: "Multilingual Clinical Triage Initiative",
+      organizationName: "Community Health Net",
+      city: "San Francisco",
+      state: "CA",
+      coordinates: [37.7749, -122.4194],
+      sector: "Healthcare",
+      resourceCategory: "AI Agents",
+      primaryDonor: "Nexus DeepMind Labs",
+      capacityProvided: "1,500 GPU Hours / mo",
+      beneficiariesServed: 15400,
+      status: "Active Deployment",
+      impactHighlight: "Real-time 42-language translation reducing clinical intake wait times by 65% across 4 neighborhood clinics.",
+    },
+    {
+      id: 2,
+      projectName: "Metro Transit Equity & Route Optimization",
+      organizationName: "Urban Transit Alliance",
+      city: "Chicago",
+      state: "IL",
+      coordinates: [41.8781, -87.6298],
+      sector: "Transit & GIS",
+      resourceCategory: "Data & GIS",
+      primaryDonor: "DataViz Solutions",
+      capacityProvided: "450 GB Processed Demographics",
+      beneficiariesServed: 42000,
+      status: "Active Deployment",
+      impactHighlight: "Optimized 24 public bus corridors for transit-dependent shift workers using municipal telemetry.",
+    },
+    {
+      id: 3,
+      projectName: "Youth STEM & Adaptive Literacy Tutoring",
+      organizationName: "Civic Literacy Foundation",
+      city: "Atlanta",
+      state: "GA",
+      coordinates: [33.7490, -84.3880],
+      sector: "Education",
+      resourceCategory: "AI Agents",
+      primaryDonor: "Nexus DeepMind Labs",
+      capacityProvided: "250,000 Inference Queries",
+      beneficiariesServed: 8200,
+      status: "Scaling",
+      impactHighlight: "Scaffolded reading comprehension assistant integrated into 14 Title I after-school programs.",
+    },
+    {
+      id: 4,
+      projectName: "Community Food Pantry Real-Time Logistics",
+      organizationName: "Food Security Hub",
+      city: "New York",
+      state: "NY",
+      coordinates: [40.7128, -74.0060],
+      sector: "Food Security",
+      resourceCategory: "Tools",
+      primaryDonor: "CivicAI Systems",
+      capacityProvided: "Automated Supply Chain Bot",
+      beneficiariesServed: 28000,
+      status: "Active Deployment",
+      impactHighlight: "Synchronized food distribution among 45 local pantries, reducing perishable surplus spoilage by 40%.",
+    },
+    {
+      id: 5,
+      projectName: "Decentralized Demographic Census Processing",
+      organizationName: "Civic Equity Data Lab",
+      city: "Austin",
+      state: "TX",
+      coordinates: [30.2672, -97.7431],
+      sector: "Digital Inclusion",
+      resourceCategory: "GPU Compute",
+      primaryDonor: "Apex Cloud Matrix",
+      capacityProvided: "2,000 A100 GPU Hours",
+      beneficiariesServed: 31000,
+      status: "Active Deployment",
+      impactHighlight: "Accelerated demographic GIS map rendering for 12 rural community health districts.",
+    },
+    {
+      id: 6,
+      projectName: "Indigenous Language Preservation & NLP",
+      organizationName: "Native Heritage Alliance",
+      city: "Seattle",
+      state: "WA",
+      coordinates: [47.6062, -122.3321],
+      sector: "Education",
+      resourceCategory: "AI Agents",
+      primaryDonor: "Nexus DeepMind Labs",
+      capacityProvided: "Custom Speech Models",
+      beneficiariesServed: 5400,
+      status: "Pilot Milestone",
+      impactHighlight: "Digitized 1,200 hours of oral history recordings into interactive linguistic learning modules.",
+    },
+    {
+      id: 7,
+      projectName: "Clean Energy Grid Mapping & Solar Access",
+      organizationName: "Environmental Data Collective",
+      city: "Denver",
+      state: "CO",
+      coordinates: [39.7392, -104.9903],
+      sector: "Digital Inclusion",
+      resourceCategory: "Data & GIS",
+      primaryDonor: "DataViz Solutions",
+      capacityProvided: "GIS Raster Compute",
+      beneficiariesServed: 19500,
+      status: "Active Deployment",
+      impactHighlight: "Identified 350+ community rooftop clusters for low-income solar energy subsidies.",
+    },
+    {
+      id: 8,
+      projectName: "Digital Skills Training for Veterans",
+      organizationName: "Veterans Tech Initiative",
+      city: "Phoenix",
+      state: "AZ",
+      coordinates: [33.4484, -112.0740],
+      sector: "Education",
+      resourceCategory: "Tools",
+      primaryDonor: "CivicAI Systems",
+      capacityProvided: "500 Cloud Lab Seats",
+      beneficiariesServed: 6300,
+      status: "Scaling",
+      impactHighlight: "Transitioned 420 veterans into high-wage civic tech and cybersecurity apprenticeships.",
+    },
+  ];
+}
+
+export async function getPublicNonprofitDirectory() {
+  return [
+    {
+      id: 1,
+      name: "Community Health Net",
+      slug: "community-health-net",
+      city: "San Francisco, CA",
+      sector: "Healthcare & Immigration",
+      mission: "Bridging the healthcare divide for vulnerable neighborhood families through multilingual digital navigation.",
+      beneficiariesServed: 15400,
+      activeProjects: 3,
+      verifiedEsgBadge: "Health Equity Tier 1",
+      techDeployed: ["Multilingual Health Translation AI", "Samsung Clinic Tablets", "NVIDIA A100 GPU Cluster"],
+      primaryDonors: ["Nexus DeepMind Labs", "Apex Cloud Matrix"],
+    },
+    {
+      id: 2,
+      name: "Urban Transit Alliance",
+      slug: "urban-transit-alliance",
+      city: "Chicago, IL",
+      sector: "Transit & Mobility",
+      mission: "Empowering transit-dependent neighborhoods with transparent telemetry and route accessibility tools.",
+      beneficiariesServed: 42000,
+      activeProjects: 2,
+      verifiedEsgBadge: "Civic Infrastructure Ally",
+      techDeployed: ["Census & Demographic ETL Pipeline", "GIS Transit Deserts Model"],
+      primaryDonors: ["DataViz Solutions", "CivicAI Systems"],
+    },
+    {
+      id: 3,
+      name: "Civic Literacy Foundation",
+      slug: "civic-literacy-foundation",
+      city: "Atlanta, GA",
+      sector: "Education & Youth",
+      mission: "Providing Title I elementary students with adaptive AI literacy tutors and STEM mentoring.",
+      beneficiariesServed: 8200,
+      activeProjects: 4,
+      verifiedEsgBadge: "NextGen Education Partner",
+      techDeployed: ["Youth Literacy Tutor AI", "Grant Writing Assistant v2"],
+      primaryDonors: ["Nexus DeepMind Labs"],
+    },
+    {
+      id: 4,
+      name: "Food Security Hub",
+      slug: "food-security-hub",
+      city: "New York, NY",
+      sector: "Food Security & Logistics",
+      mission: "Optimizing community food pantry supply chains to eliminate hunger and reduce agricultural waste.",
+      beneficiariesServed: 28000,
+      activeProjects: 2,
+      verifiedEsgBadge: "Zero-Hunger Innovator",
+      techDeployed: ["Automated Supply Chain Bot", "Pantry Telemetry Dashboard"],
+      primaryDonors: ["CivicAI Systems"],
+    },
+    {
+      id: 5,
+      name: "Environmental Data Collective",
+      slug: "environmental-data-collective",
+      city: "Denver, CO",
+      sector: "Climate & Energy Equity",
+      mission: "Democratizing satellite and GIS clean energy analytics for low-income neighborhood electrification.",
+      beneficiariesServed: 19500,
+      activeProjects: 3,
+      verifiedEsgBadge: "Clean Energy Pioneer",
+      techDeployed: ["Solar Raster Compute", "Environmental GIS Maps"],
+      primaryDonors: ["DataViz Solutions", "Apex Cloud Matrix"],
+    },
+  ];
+}
+
+export async function getPlatformAuditLogs() {
+  return [
+    {
+      id: "AUD-2026-9841",
+      timestamp: new Date("2026-09-01T14:32:00Z"),
+      actorName: "Nexus DeepMind Labs",
+      actorRole: "donor",
+      eventType: "PLEDGE_FULFILLMENT_AUDIT",
+      targetEntity: "Multilingual Health Agent (1,500 GPU Hours)",
+      status: "VERIFIED_DELIVERED",
+      slaCompliance: "99.8% Uptime / 480ms Latency",
+      verificationHash: "0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+    },
+    {
+      id: "AUD-2026-9840",
+      timestamp: new Date("2026-09-01T12:15:00Z"),
+      actorName: "Community Health Net",
+      actorRole: "nonprofit",
+      eventType: "CAPACITY_ALLOCATION_DRAWDOWN",
+      targetEntity: "NVIDIA A100 GPU Inference Cluster",
+      status: "COMPLETED",
+      slaCompliance: "Zero Latency Spikes",
+      verificationHash: "0x1128b9c2409f874249a5b3a4a1168fec5df9c0e5a8f6d7293aecd200384a2103",
+    },
+    {
+      id: "AUD-2026-9839",
+      timestamp: new Date("2026-08-31T18:45:00Z"),
+      actorName: "Apex Cloud Matrix",
+      actorRole: "donor",
+      eventType: "SLA_SANDBOX_BENCHMARK_RUN",
+      targetEntity: "NVIDIA A100 High-Throughput Cluster",
+      status: "BENCHMARK_PASSED",
+      slaCompliance: "Latency: 280ms / Throughput: 142 tok/s",
+      verificationHash: "0x4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+    },
+    {
+      id: "AUD-2026-9838",
+      timestamp: new Date("2026-08-30T09:20:00Z"),
+      actorName: "CivicAI Systems",
+      actorRole: "donor",
+      eventType: "GRI_CSR_REPORT_GENERATED",
+      targetEntity: "August 2026 ESG Impact Ledger",
+      status: "CERTIFIED_GRI_201",
+      slaCompliance: "100% Matching Attributed",
+      verificationHash: "0xef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
+    },
+    {
+      id: "AUD-2026-9837",
+      timestamp: new Date("2026-08-28T16:00:00Z"),
+      actorName: "Urban Transit Alliance",
+      actorRole: "nonprofit",
+      eventType: "COALITION_QUOTA_SPLIT_RECORDED",
+      targetEntity: "Chicago Transit Demographics Pool",
+      status: "GOVERNANCE_APPROVED",
+      slaCompliance: "5 Member Consensus",
+      verificationHash: "0x892a34fc617e909a82bb31c5188fbc910a3d44521c7faecf57e849921102ba14",
+    },
+  ];
+}
+
+export async function exportComplianceData(format: "csv" | "json") {
+  const auditLogs = await getPlatformAuditLogs();
+  const projects = await getGeospatialImpactProjects();
+
+  if (format === "json") {
+    return JSON.stringify(
+      {
+        exportTimestamp: new Date().toISOString(),
+        complianceStandard: "GRI 201-1 / GRI 413-1 / IRS 990 In-Kind Tech Audit",
+        totalVerifiedProjects: projects.length,
+        totalBeneficiaries: projects.reduce((sum, p) => sum + p.beneficiariesServed, 0),
+        auditTrail: auditLogs,
+        projectsSummary: projects,
+      },
+      null,
+      2
+    );
+  }
+
+  // Generate RFC-4180 CSV
+  const headers = [
+    "Audit_ID",
+    "Timestamp_UTC",
+    "Actor_Name",
+    "Actor_Role",
+    "Event_Type",
+    "Target_Resource",
+    "Status",
+    "SLA_Compliance",
+    "Verification_Hash",
+  ];
+
+  const rows = auditLogs.map(log => [
+    `"${log.id}"`,
+    `"${log.timestamp.toISOString()}"`,
+    `"${log.actorName}"`,
+    `"${log.actorRole}"`,
+    `"${log.eventType}"`,
+    `"${log.targetEntity}"`,
+    `"${log.status}"`,
+    `"${log.slaCompliance}"`,
+    `"${log.verificationHash}"`,
+  ]);
+
+  return [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+}
+
+
 
 

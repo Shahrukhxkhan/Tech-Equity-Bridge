@@ -26,7 +26,10 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/coalition" component={CoalitionBuilder} />
       <Route path="/impact" component={ImpactTracker} />
+      <Route path="/impact-map" component={ImpactTracker} />
+      <Route path="/impact-analytics" component={ImpactTracker} />
       <Route path="/impact-wall" component={ImpactWall} />
+      <Route path="/directory" component={ImpactWall} />
       <Route path="/impact-wall/:slug" component={ImpactWall} />
       <Route path="/donors" component={ImpactWall} />
       <Route path="/sandbox" component={AgentSandbox} />

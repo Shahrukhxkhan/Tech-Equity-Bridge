@@ -848,8 +848,30 @@ export const appRouter = router({
         return db.getUserLiveNotifications(input.userId);
       }),
   }),
+
+  // ============ ANALYTICS, GEOSPATIAL MAP & AUDIT EXPORT ============
+  analytics: router({
+    getGeospatialProjects: publicProcedure.query(async () => {
+      return db.getGeospatialImpactProjects();
+    }),
+
+    getPublicNonprofits: publicProcedure.query(async () => {
+      return db.getPublicNonprofitDirectory();
+    }),
+
+    getAuditLogs: publicProcedure.query(async () => {
+      return db.getPlatformAuditLogs();
+    }),
+
+    exportAuditData: publicProcedure
+      .input(z.object({ format: z.enum(["csv", "json"]).default("csv") }))
+      .mutation(async ({ input }) => {
+        return db.exportComplianceData(input.format);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
+
 
 
