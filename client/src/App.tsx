@@ -15,6 +15,7 @@ import PledgeMonitor from "@/pages/PledgeMonitor";
 import AgentSandbox from "@/pages/AgentSandbox";
 import A2ANegotiator from "@/pages/A2ANegotiator";
 import IamManagement from "@/pages/IamManagement";
+import EdgeMesh from "@/pages/EdgeMesh";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -44,6 +45,9 @@ function Router() {
       <Route path="/iam" component={IamManagement} />
       <Route path="/iam-admin" component={IamManagement} />
       <Route path="/sso" component={IamManagement} />
+      <Route path="/edge" component={EdgeMesh} />
+      <Route path="/edge-mesh" component={EdgeMesh} />
+      <Route path="/offline-clinic" component={EdgeMesh} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/pledges" component={PledgeMonitor} />
       <Route path="/admin/pledge-monitor" component={PledgeMonitor} />

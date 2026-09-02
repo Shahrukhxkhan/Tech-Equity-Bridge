@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink, Activity, Radio, Lock } from "lucide-react";
+import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink, Activity, Radio, Lock, Cpu } from "lucide-react";
 import DonorPledgeManager from "@/components/DonorPledgeManager";
 import BenchmarkRunnerModal from "@/components/BenchmarkRunnerModal";
 import CsrReportViewer from "@/components/CsrReportViewer";
@@ -37,6 +37,12 @@ export default function Dashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/edge"
+              className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 cursor-pointer shadow-xs"
+            >
+              <Cpu className="w-3.5 h-3.5 mr-1.5 text-[#1D9E75]" /> Edge Mesh & Offline
+            </a>
             <a
               href="/iam"
               className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 cursor-pointer shadow-xs"

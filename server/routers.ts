@@ -9,6 +9,7 @@ import * as workerQueue from "./workerQueue";
 import * as webhooks from "./webhooks";
 import * as a2aEngine from "./a2aEngine";
 import * as iamEngine from "./iamEngine";
+import * as edgeMeshEngine from "./edgeMeshEngine";
 
 // Protected procedure for donors only
 const donorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1111,6 +1112,41 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         return iamEngine.testSsoProviderConnection(input.providerId);
       }),
+  }),
+
+  // ============ OFFLINE-FIRST EDGE COMPUTE MESH & CRDT SYNC ============
+  edgeMesh: router({
+    getEdgeNodes: publicProcedure.query(async () => {
+      return edgeMeshEngine.getEdgeNodesList();
+    }),
+
+    getQuantizedModels: publicProcedure.query(async () => {
+      return edgeMeshEngine.getQuantizedModelsList();
+    }),
+
+    getCrdtRecords: publicProcedure.query(async () => {
+      return edgeMeshEngine.getCrdtLedgerRecords();
+    }),
+
+    runLocalInference: publicProcedure
+      .input(
+        z.object({
+          modelId: z.string(),
+          inputPrompt: z.string(),
+          nodeId: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return edgeMeshEngine.runLocalEdgeInference(
+          input.modelId,
+          input.inputPrompt,
+          input.nodeId
+        );
+      }),
+
+    syncMeshToCloud: publicProcedure.mutation(async () => {
+      return edgeMeshEngine.reconcileCrdtMeshToCloud();
+    }),
   }),
 });
 
