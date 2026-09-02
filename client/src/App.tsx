@@ -17,6 +17,7 @@ import A2ANegotiator from "@/pages/A2ANegotiator";
 import IamManagement from "@/pages/IamManagement";
 import EdgeMesh from "@/pages/EdgeMesh";
 import Web3EsgVault from "@/pages/Web3EsgVault";
+import SroiForecaster from "@/pages/SroiForecaster";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -53,6 +54,10 @@ function Router() {
       <Route path="/zk-proofs" component={Web3EsgVault} />
       <Route path="/did-credentials" component={Web3EsgVault} />
       <Route path="/carbon-offsets" component={Web3EsgVault} />
+      <Route path="/sroi" component={SroiForecaster} />
+      <Route path="/sroi-forecast" component={SroiForecaster} />
+      <Route path="/co-funding" component={SroiForecaster} />
+      <Route path="/funders-matching" component={SroiForecaster} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/pledges" component={PledgeMonitor} />
       <Route path="/admin/pledge-monitor" component={PledgeMonitor} />

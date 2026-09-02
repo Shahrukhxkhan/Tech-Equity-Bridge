@@ -11,6 +11,7 @@ import * as a2aEngine from "./a2aEngine";
 import * as iamEngine from "./iamEngine";
 import * as edgeMeshEngine from "./edgeMeshEngine";
 import * as web3EsgEngine from "./web3EsgEngine";
+import * as sroiEngine from "./sroiEngine";
 
 // Protected procedure for donors only
 const donorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1213,6 +1214,51 @@ export const appRouter = router({
           input.nonprofitPartner,
           input.gpuHoursDonated,
           input.renewableEnergySource
+        );
+      }),
+  }),
+
+  // ============ PREDICTIVE SROI ML ENGINE & CO-FUNDING ============
+  sroi: router({
+    calculateForecast: publicProcedure
+      .input(
+        z.object({
+          sectorKey: z.string().default("healthcare"),
+          gpuHours: z.number().default(1500),
+          beneficiaries: z.number().default(15000),
+          complexity: z.number().default(1.0),
+        })
+      )
+      .query(async ({ input }) => {
+        return sroiEngine.calculateSroiForecast(
+          input.sectorKey,
+          input.gpuHours,
+          input.beneficiaries,
+          input.complexity
+        );
+      }),
+
+    getSectorBenchmarks: publicProcedure.query(async () => {
+      return sroiEngine.getSectorBenchmarksList();
+    }),
+
+    getCoFundingCampaigns: publicProcedure.query(async () => {
+      return sroiEngine.getCoFundingCampaignsList();
+    }),
+
+    pledgeCoFunding: publicProcedure
+      .input(
+        z.object({
+          campaignId: z.string(),
+          pledgeAmountUsd: z.number().positive(),
+          foundationName: z.string().min(1),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return sroiEngine.pledgeFoundationCoFundingMatch(
+          input.campaignId,
+          input.pledgeAmountUsd,
+          input.foundationName
         );
       }),
   }),

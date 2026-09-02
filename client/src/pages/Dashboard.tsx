@@ -38,6 +38,12 @@ export default function Dashboard() {
 
           <div className="flex flex-wrap items-center gap-2">
             <a
+              href="/sroi"
+              className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 cursor-pointer shadow-xs"
+            >
+              <TrendingUp className="w-3.5 h-3.5 mr-1.5 text-[#1D9E75]" /> Predictive SROI &amp; Co-Funding
+            </a>
+            <a
               href="/web3-esg"
               className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 cursor-pointer shadow-xs"
             >
