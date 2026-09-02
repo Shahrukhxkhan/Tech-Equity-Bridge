@@ -5,6 +5,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { systemRouter } from "./_core/systemRouter";
 import * as db from "./db";
+import * as workerQueue from "./workerQueue";
+import * as webhooks from "./webhooks";
+import * as a2aEngine from "./a2aEngine";
 
 // Protected procedure for donors only
 const donorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -868,6 +871,151 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         return db.exportComplianceData(input.format);
       }),
+  }),
+
+  // ============ PRODUCTION INFRASTRUCTURE & WEBHOOKS ============
+  infrastructure: router({
+    getSystemHealth: publicProcedure.query(async () => {
+      const dbHealth = await db.checkDatabaseHealth();
+      const queueStats = workerQueue.getBackgroundJobStats();
+      const memoryUsage = process.memoryUsage();
+
+      return {
+        database: dbHealth,
+        workerQueue: queueStats,
+        uptimeSeconds: Math.floor(process.uptime()),
+        memory: {
+          rssMb: Math.round(memoryUsage.rss / 1024 / 1024),
+          heapUsedMb: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+        },
+        nodeVersion: process.version,
+        environment: process.env.NODE_ENV || "development",
+      };
+    }),
+
+    getWorkerJobs: publicProcedure.query(async () => {
+      return {
+        stats: workerQueue.getBackgroundJobStats(),
+        jobs: workerQueue.getRecentBackgroundJobs(15),
+      };
+    }),
+
+    enqueueJob: publicProcedure
+      .input(
+        z.object({
+          type: z.enum([
+            "GENERATE_MONTHLY_CSR_REPORTS",
+            "RUN_SLA_BENCHMARKS",
+            "SEND_EMAIL_NOTIFICATION_ALERTS",
+            "DISPATCH_WEBHOOK_EVENT",
+            "CLEANUP_AUDIT_LOGS_AND_CACHE",
+          ]),
+          payload: z.record(z.string(), z.any()).optional(),
+          priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return workerQueue.enqueueBackgroundJob(input.type, input.payload, input.priority);
+      }),
+
+    getWebhooks: publicProcedure.query(async () => {
+      return webhooks.getWebhookConfigs();
+    }),
+
+    saveWebhook: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(1),
+          platform: z.enum(["slack", "discord", "teams", "generic"]),
+          url: z.string().url(),
+          enabledEvents: z.array(
+            z.enum([
+              "RESOURCE_REQUEST_APPROVED",
+              "NEW_HIGH_MATCH_RESOURCE",
+              "COALITION_MILESTONE_COMPLETED",
+              "PLEDGE_UNDER_DELIVERY_ALERT",
+              "SLA_BENCHMARK_VIOLATION",
+            ])
+          ),
+          isActive: z.boolean().default(true),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return webhooks.saveWebhookConfig(input);
+      }),
+
+    deleteWebhook: publicProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        return { success: webhooks.deleteWebhookConfig(input.id) };
+      }),
+
+    testWebhook: publicProcedure
+      .input(
+        z.object({
+          platform: z.enum(["slack", "discord", "teams", "generic"]),
+          url: z.string().url(),
+          event: z
+            .enum([
+              "RESOURCE_REQUEST_APPROVED",
+              "NEW_HIGH_MATCH_RESOURCE",
+              "COALITION_MILESTONE_COMPLETED",
+              "PLEDGE_UNDER_DELIVERY_ALERT",
+              "SLA_BENCHMARK_VIOLATION",
+            ])
+            .optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return webhooks.testWebhookEndpoint(input.platform, input.url, input.event);
+      }),
+  }),
+
+  // ============ AUTONOMOUS AGENT-TO-AGENT (A2A) NEGOTIATOR ============
+  a2a: router({
+    startNegotiation: publicProcedure
+      .input(
+        z.object({
+          nonprofitProfile: z.object({
+            name: z.string().min(1),
+            mission: z.string().min(1),
+            sector: z.string().min(1),
+            requestedHours: z.number().optional(),
+          }),
+          resourceOffer: z.object({
+            id: z.number(),
+            title: z.string(),
+            donor: z.string(),
+            donorTier: z.string(),
+            maxCapacity: z.number(),
+          }),
+          preferences: z
+            .object({
+              flexOffPeak: z.boolean().optional(),
+              targetBeneficiaries: z.number().optional(),
+            })
+            .optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return a2aEngine.executeA2ANegotiation(
+          input.nonprofitProfile,
+          input.resourceOffer,
+          input.preferences
+        );
+      }),
+
+    getSessionHistory: publicProcedure.query(async () => {
+      return a2aEngine.getA2ANegotiationHistory();
+    }),
+
+    getSmartSchedule: publicProcedure.query(async () => {
+      return a2aEngine.getDynamic24HourGpuSchedule();
+    }),
+
+    triggerSmartRebalance: publicProcedure.mutation(async () => {
+      return a2aEngine.triggerDynamicRebalance();
+    }),
   }),
 });
 

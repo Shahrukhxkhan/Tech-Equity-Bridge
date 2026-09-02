@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink } from "lucide-react";
+import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink, Activity, Radio } from "lucide-react";
 import DonorPledgeManager from "@/components/DonorPledgeManager";
 import BenchmarkRunnerModal from "@/components/BenchmarkRunnerModal";
 import CsrReportViewer from "@/components/CsrReportViewer";
+import WebhookSettingsModal from "@/components/WebhookSettingsModal";
+import SystemHealthDrawer from "@/components/SystemHealthDrawer";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
   const [benchmarkResourceId, setBenchmarkResourceId] = useState<number | null>(null);
   const [activeCsrDonorId, setActiveCsrDonorId] = useState<number | null>(null);
+  const [showWebhooksModal, setShowWebhooksModal] = useState(false);
+  const [showHealthDrawer, setShowHealthDrawer] = useState(false);
 
   // In demo or fallback mode, default role is donor for testing
   const isDonor = user?.role === "donor" || !user?.role || user?.role === "nonprofit";
@@ -33,12 +37,27 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/a2a"
+              className="inline-flex items-center px-3 py-2 text-xs font-bold rounded-lg border border-purple-300 bg-purple-700 text-white hover:bg-purple-800 cursor-pointer shadow-xs"
+            >
+              <Zap className="w-3.5 h-3.5 mr-1.5 fill-current" /> A2A Bot Negotiator
+            </a>
+            <button
+              onClick={() => setShowWebhooksModal(true)}
+              className="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 cursor-pointer"
+            >
+              <Radio className="w-3.5 h-3.5 mr-1.5 text-purple-600" /> Webhooks
+            </button>
+            <button
+              onClick={() => setShowHealthDrawer(true)}
+              className="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer shadow-xs"
+            >
+              <Activity className="w-3.5 h-3.5 mr-1.5 text-[#1D9E75]" /> System Health
+            </button>
             <a href="/marketplace" className="btn btn-secondary btn-sm text-xs py-2 px-3">
               Marketplace
-            </a>
-            <a href="/admin/pledges" className="btn btn-ghost btn-sm text-xs py-2 px-3 border border-gray-200 bg-white">
-              Admin SLA Monitor
             </a>
           </div>
         </div>

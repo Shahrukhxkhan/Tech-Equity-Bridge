@@ -13,6 +13,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import ImpactWall from "@/pages/ImpactWall";
 import PledgeMonitor from "@/pages/PledgeMonitor";
 import AgentSandbox from "@/pages/AgentSandbox";
+import A2ANegotiator from "@/pages/A2ANegotiator";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -34,6 +35,8 @@ function Router() {
       <Route path="/donors" component={ImpactWall} />
       <Route path="/sandbox" component={AgentSandbox} />
       <Route path="/agent-sandbox" component={AgentSandbox} />
+      <Route path="/a2a" component={A2ANegotiator} />
+      <Route path="/a2a-negotiator" component={A2ANegotiator} />
       <Route path="/grant-assistant" component={GrantAssistant} />
       <Route path="/grants" component={GrantAssistant} />
       <Route path="/notifications" component={NotificationCenter} />
