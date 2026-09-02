@@ -1,409 +1,193 @@
-# Tech-Equity Bridge
-
-> **Bridging the digital divide** — Connect tech companies with non-profits to share AI agents, tools, and computing resources for measurable social impact.
-
-![Tech-Equity Bridge](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) ![License](https://img.shields.io/badge/License-MIT-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue) ![React](https://img.shields.io/badge/React-19-blue)
-
-## 🎯 Mission
-
-Tech-Equity Bridge is a collaborative marketplace that enables tech companies and non-profit organizations to connect, share resources, and create measurable social impact together. We democratize access to AI agents, software tools, datasets, and computing resources for organizations working on education, healthcare, environment, and social good.
-
-## ✨ Key Features
-
-### 1. **Role-Based Onboarding**
-- Separate flows for Tech Donors and Non-Profit Recipients
-- Organization verification and profile setup
-- Sector and capability assessment
-
-### 2. **Agent & Resource Marketplace**
-- Browse AI agents, software tools, datasets, and computing resources
-- Advanced search and filtering by category, sector, and capacity
-- Resource detail pages with specifications and requirements
-- One-click resource requests
-
-### 3. **Smart Matching Engine**
-- AI-powered algorithm that suggests compatible resources to non-profits
-- Surfaces relevant non-profits to donors based on mission alignment
-- Match quality scoring (0-100%) with transparency
-- Continuous learning from successful matches
-
-### 4. **Coalition Builder**
-- Enable multiple non-profits to group around shared goals
-- Joint resource requests for larger packages
-- Collaborative impact tracking
-- Member management and communication
-
-### 5. **Impact Tracking Dashboard**
-- **For Donors**: Resources shared, organizations helped, hours contributed, CSR narrative
-- **For Non-Profits**: Resources received, projects enabled, outcomes reported, beneficiaries reached
-- Platform-wide impact statistics
-- Export reports for grants and stakeholders
-
-### 6. **Request & Approval Workflow**
-- Non-profits submit detailed resource requests
-- Donors review with full context and match scores
-- Approval/rejection with feedback
-- Status tracking and in-platform messaging
-- Request history and analytics
-
-### 7. **Grant Writing Assistant**
-- AI-powered chat interface for grant proposal drafting
-- Sector-specific templates
-- Document generation and editing
-- Export to PDF for submission
-
-### 8. **Public Landing Page**
-- Mission and vision statement
-- Platform statistics (donors, non-profits, impact)
-- How it works explanation
-- Featured success stories
-- Clear calls-to-action for both user types
-
-### 9. **Notification System**
-- New match alerts
-- Request status updates
-- Coalition invitations
-- Impact milestone celebrations
-- Email and in-app notifications
-
-### 10. **Admin Dashboard**
-- User management and moderation
-- Resource quality review
-- Match quality analytics
-- Platform-wide statistics
-- Reporting and insights
-
-## 🏗️ Architecture
-
-### Tech Stack
-
-**Frontend:**
-- React 19 with TypeScript
-- Tailwind CSS 4 with Civic Commons design system
-- tRPC for type-safe API calls
-- Wouter for routing
-- Tabler Icons for iconography
-
-**Backend:**
-- Express.js 4
-- tRPC 11 for RPC procedures
-- Drizzle ORM for database
-- MySQL/TiDB for persistence
-- Manus OAuth for authentication
-
-**Design System:**
-- **Civic Commons** - Professional, flat design aesthetic
-- **Colors**: Teal-green primary (#1D9E75), Civic purple secondary (#534AB7), Amber accent (#BA7517)
-- **Typography**: Inter and DM Sans fonts (max weight 500)
-- **Components**: 40+ reusable components with semantic variants
-
-### Database Schema
-
-14 comprehensive tables:
-- `users` - Core user model with RBAC (donor/nonprofit/admin)
-- `donorProfiles` - Tech donor organization details
-- `nonprofitProfiles` - Non-profit organization details
-- `resources` - Marketplace resources (AI agents, tools, datasets, compute)
-- `coalitions` - Multi-org collaborations
-- `coalitionMembers` - Coalition membership tracking
-- `requests` - Resource requests with status tracking
-- `messages` - In-platform messaging
-- `impactMetrics` - Outcome reporting and tracking
-- `notifications` - User notifications
-- `matches` - Smart matching results
-- `grantSessions` - Grant writing assistant sessions
-- `moderationQueue` - Content moderation
-- `platformStats` - Platform-wide analytics
-
-### API Architecture
-
-50+ tRPC procedures organized by feature:
-- **User Management**: Profile creation, updates, verification
-- **Marketplace**: Resource CRUD, search, filtering
-- **Matching**: Smart matching algorithm, suggestions
-- **Coalitions**: Create, join, manage, messaging
-- **Requests**: Submit, approve, reject, track
-- **Impact**: Metrics tracking, reporting, export
-- **Notifications**: Create, read, preferences
-- **Admin**: User management, moderation, analytics
-- **Grant Assistant**: Session management, AI integration
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 22+
-- pnpm 10+
-- MySQL 8+ or TiDB
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Shahrukhxkhan/Tech-Equity-Bridge.git
-cd Tech-Equity-Bridge
-
-# Install dependencies
-pnpm install
-
-# Set up environment variables
-cp .env.example .env.local
-
-# Run database migrations
-pnpm db:push
-
-# Start development server
-pnpm dev
-```
-
-### Environment Variables
-
-```env
-# Database
-DATABASE_URL=mysql://user:password@localhost:3306/tech_equity_bridge
-
-# Authentication
-JWT_SECRET=your_jwt_secret_key
-OAUTH_SERVER_URL=https://api.manus.im
-VITE_OAUTH_PORTAL_URL=https://oauth.manus.im
-
-# App Configuration
-VITE_APP_ID=your_app_id
-VITE_APP_TITLE=Tech-Equity Bridge
-VITE_APP_LOGO=https://your-logo-url.png
-
-# LLM Integration (for Grant Assistant)
-BUILT_IN_FORGE_API_URL=https://api.manus.im
-BUILT_IN_FORGE_API_KEY=your_api_key
-
-# Analytics
-VITE_ANALYTICS_ENDPOINT=https://analytics.example.com
-VITE_ANALYTICS_WEBSITE_ID=your_website_id
-```
-
-## 📁 Project Structure
-
-```
-tech-equity-bridge/
-├── client/                          # React frontend
-│   ├── src/
-│   │   ├── pages/                  # Page components
-│   │   │   ├── Home.tsx            # Landing page
-│   │   │   ├── Onboarding.tsx      # Role-based onboarding
-│   │   │   ├── Dashboard.tsx       # Role-based dashboards
-│   │   │   ├── Marketplace.tsx     # Resource marketplace
-│   │   │   ├── CoalitionBuilder.tsx # Coalition management
-│   │   │   ├── ImpactTracker.tsx   # Impact dashboard
-│   │   │   ├── GrantAssistant.tsx  # AI grant writing
-│   │   │   ├── NotificationCenter.tsx # Notifications
-│   │   │   └── AdminDashboard.tsx  # Admin panel
-│   │   ├── components/             # Reusable components
-│   │   │   ├── MatchScoreBar.tsx   # Match scoring visualization
-│   │   │   ├── ImpactMetricCard.tsx # Metric cards
-│   │   │   └── ui/                 # shadcn/ui components
-│   │   ├── lib/                    # Utilities
-│   │   │   └── trpc.ts             # tRPC client
-│   │   ├── App.tsx                 # Main app component
-│   │   └── index.css               # Civic Commons design system
-│   └── index.html
-├── server/                          # Express backend
-│   ├── routers.ts                  # tRPC procedures
-│   ├── db.ts                       # Database queries
-│   ├── storage.ts                  # S3 storage helpers
-│   └── _core/                      # Framework internals
-├── drizzle/                         # Database schema
-│   ├── schema.ts                   # Table definitions
-│   └── migrations/                 # SQL migrations
-├── shared/                          # Shared types
-│   ├── const.ts                    # Constants
-│   └── types.ts                    # Shared types
-└── references/                      # Integration guides
-    ├── llm-integration.md          # LLM/AI setup
-    ├── file-storage.md             # S3 storage
-    ├── manus-oauth.md              # OAuth flow
-    └── periodic-updates.md         # Background jobs
-```
-
-## 🎨 Design System - Civic Commons
-
-The platform uses the **Civic Commons** design system for a professional, trustworthy, civic-focused aesthetic:
-
-### Color Palette
-- **Primary**: Teal-green (#1D9E75) - Trust, growth, civic engagement
-- **Secondary**: Civic purple (#534AB7) - Collaboration, non-profit sector
-- **Accent**: Amber (#BA7517) - Impact, calls-to-action
-- **Neutrals**: Professional grays for text and backgrounds
-
-### Design Principles
-- **Flat Design**: No gradients, shadows, or blur effects
-- **Professional Typography**: Inter and DM Sans fonts (max weight 500)
-- **Semantic Colors**: Consistent meaning across the platform
-- **Accessibility**: WCAG AA compliance with proper contrast
-- **Responsive**: Mobile-first design for all screen sizes
-
-### Components
-- Buttons (primary, secondary, danger variants)
-- Cards with 0.5px borders
-- Match score bars with color coding
-- Impact metric cards with trends
-- Navigation with pill-style tabs
-- Form inputs with focus rings
-- Status badges (verified, AI agent, high demand, inactive)
-
-## 📊 Data Flow Examples
-
-### Resource Request Flow
-1. Non-profit browses marketplace and finds matching resource
-2. Clicks "Request Resource" and fills out requirements
-3. Smart matching engine calculates compatibility score
-4. Donor receives notification with request details and match score
-5. Donor reviews and approves/rejects with feedback
-6. Non-profit receives status update and can proceed with onboarding
-7. Impact metrics updated for both parties
-
-### Coalition Formation Flow
-1. Non-profit creates coalition with shared goal
-2. Invites other non-profits to join
-3. Coalition collectively identifies resource needs
-4. Submits joint request for larger package
-5. Donor can approve entire coalition request
-6. Resources shared with all members
-7. Coalition tracks combined impact
-
-### Grant Writing Flow
-1. Non-profit enters grant writing assistant
-2. AI asks questions about organization, mission, needs
-3. Generates draft proposal based on profile data
-4. Non-profit edits and refines with AI suggestions
-5. Exports final proposal as PDF
-6. Submits to grant funders
-
-## 🔐 Security & Authentication
-
-### OAuth Flow
-- Manus OAuth for secure, passwordless authentication
-- Session cookies with JWT signing
-- Role-based access control (RBAC)
-- Protected procedures with `protectedProcedure`
-- Admin-only operations with `adminProcedure`
-
-### Data Protection
-- All sensitive data encrypted in transit (HTTPS)
-- Database connection pooling with SSL
-- Input validation with Zod schemas
-- SQL injection prevention via Drizzle ORM
-- CORS protection on API endpoints
-
-## 🧪 Testing
-
-```bash
-# Run unit tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test --watch
-
-# Generate coverage report
-pnpm test --coverage
-```
-
-Test coverage includes:
-- Authentication and authorization flows
-- Database queries and mutations
-- tRPC procedure validation
-- Smart matching algorithm
-- Impact metric calculations
-
-## 📈 Performance Optimization
-
-- **Frontend**: Code splitting, lazy loading, image optimization
-- **Backend**: Database query optimization, caching strategies
-- **API**: Response compression, request batching
-- **Database**: Indexed queries, connection pooling
-- **Deployment**: CDN for static assets, autoscaling
-
-## 🚢 Deployment
-
-### Manus Hosting (Recommended)
-```bash
-# Create checkpoint
-pnpm webdev-save-checkpoint
-
-# Click Publish in Management UI
-# Platform handles deployment automatically
-```
-
-### Alternative Hosting
-- **Vercel**: For frontend only
-- **Railway**: Full-stack deployment
-- **Render**: Full-stack deployment
-- **Self-hosted**: Docker container support
-
-## 🤝 Contributing
-
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-- Follow TypeScript best practices
-- Write tests for new features
-- Use Civic Commons design system for UI
-- Document API procedures with JSDoc comments
-- Keep components focused and reusable
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙋 Support
-
-- **Documentation**: See `/references` folder for integration guides
-- **Issues**: Report bugs on GitHub Issues
-- **Discussions**: Start conversations on GitHub Discussions
-- **Email**: support@tech-equity-bridge.org
-
-## 🎯 Roadmap
-
-### Phase 1 (Current)
-- ✅ Core marketplace and matching
-- ✅ Coalition builder
-- ✅ Impact tracking
-- ✅ Grant writing assistant
-
-### Phase 2 (Q3 2026)
-- Real-time notifications via WebSocket
-- Email verification and trust badges
-- Advanced matching with ML
-- Success stories and testimonials
-
-### Phase 3 (Q4 2026)
-- Mobile app (iOS/Android)
-- API for third-party integrations
-- Advanced analytics and reporting
-- Donor CSR dashboard
-
-### Phase 4 (2027)
-- Blockchain verification for impact
-- Decentralized coalition governance
-- Global expansion and localization
-- Enterprise features
-
-## 👥 Team
-
-Built with ❤️ by the Tech-Equity Bridge team.
-
-## 🙏 Acknowledgments
-
-- Civic Commons design system for professional aesthetic
-- Manus platform for OAuth and infrastructure
-- Open-source community for amazing tools and libraries
+# 🌉 Tech-Equity Bridge
+
+> **The Sovereign AI & Compute Equity Infrastructure** — Connecting enterprise tech donors, philanthropic grantmakers, and civic non-profits to share AI agents, high-performance computing, and verified ESG impact.
+
+![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=for-the-badge)
+![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge)
+![zk-SNARKs](https://img.shields.io/badge/zk--SNARKs-Groth16%20%2F%20BN254-8A2BE2?style=for-the-badge)
+![Web3 DIDs](https://img.shields.io/badge/W3C-Verifiable%20Credentials-orange?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Vitest-37%2F37%20Passing-success?style=for-the-badge)
 
 ---
 
-**Let's bridge the digital divide together.** 🌉
+## 🎯 Executive Overview
 
-For more information, visit [Tech-Equity Bridge](https://tech-equity-bridge.org)
+**Tech-Equity Bridge** is a comprehensive civic infrastructure platform that bridges the global digital compute divide. It enables enterprise tech companies (*Nexus DeepMind, Apex Cloud, TensorScale*) to share GPU compute clusters, fine-tuned AI agents, and tools with non-profits and civic coalitions, while providing **cryptographic verification, autonomous agent-to-agent negotiation, enterprise SSO federation, and econometric SROI outcome forecasting**.
+
+---
+
+## 🚀 Key Feature Engines
+
+### 1. 🤖 Autonomous Agent-to-Agent (A2A) Capacity Negotiations
+* **Non-Profit "Grant Navigator Bot":** Autonomously analyzes mission directives, drafts structured proposals, and signals willingness to accept off-peak overnight execution windows.
+* **Corporate Donor "CSR Allocator Bot":** Evaluates requests against ESG budget quotas (96/100 alignment score), runs sandboxed SLA benchmark probes on sample payloads, and computes counter-proposals (e.g. *1,425 GPU Hours with 20% burst allowance for 22:00–06:00 UTC batches*).
+* **Automated Credential Provisioning:** Generates live Bearer tokens (`teb_live_...`), monthly token quotas (250M tokens), and dedicated cluster endpoints upon reaching multi-turn consensus.
+* **Dynamic 24-Hour Smart GPU Scheduler:** Identifies underutilized nighttime slots (22:00–06:00 UTC) and automatically rebalances compute capacity across active coalition batches.
+
+### 2. 📈 Predictive Social Return on Investment (SROI) ML Engine
+* **Machine Learning Outcome Regression:** Forecasts quantifiable economic dollar value created per $1 of donated GPU compute:
+  * 🏥 **Healthcare & Clinical Triage:** `$4.20 / $1.00` (Quantified ER diversions @ $1,850/visit).
+  * 📚 **Civic Literacy & AI Tutoring:** `$3.85 / $1.00` (Lifelong earnings uplift from reading gains).
+  * 🚌 **Urban Transit & Environmental GIS:** `$3.40 / $1.00` (Commuter transit hours saved & fuel displacement).
+  * ⚖️ **Legal Aid & Immigration Intake:** `$4.60 / $1.00` (Pro-bono attorney hourly displacement @ $275/hr).
+  * 🥦 **Food Security & Cold Chain:** `$3.75 / $1.00` (Pounds of fresh produce diverted from landfills @ $2.10/lb).
+* **Philanthropic Foundation Co-Funding Consortium:** Connects corporate tech donors (*Nexus DeepMind*) providing compute/agents directly with philanthropic grantmakers (*MacArthur Foundation, Gates Grand Challenges, Ford Foundation*) matching with operational staff cash grants.
+
+### 3. 🔐 Enterprise Single Sign-On (SSO) & Granular 5-Tier RBAC (IAM)
+* **Identity Provider Federation:** SAML 2.0 & OIDC integration with **Okta**, **Microsoft Entra ID (Azure AD)**, and **Google Workspace** with Just-In-Time (JIT) provisioning.
+* **5-Tier Granular RBAC Personas:**
+  * 👑 **CSR Executive:** View ESG certificates, generate GRI 201-1 CSR impact reports, access philanthropic tax write-off ledgers.
+  * ⚡ **SLA Benchmark Auditor:** Run sandboxed latency/throughput probes, inspect GPU cluster endpoints, monitor remediation alerts.
+  * 🏛️ **Coalition Lead:** Rebalance member quotas in shared compute pools, manage milestone Kanban roadmaps.
+  * 📝 **Non-Profit Grant Navigator:** Draft context-aware proposals with RFP Ingestion, launch Autonomous A2A negotiations.
+  * 🛡️ **Public / Financial Auditor:** Read-only access to immutable cryptographic audit ledgers and RFC-4180 compliance exports.
+
+### 4. 🌐 Offline-First Edge Compute Mesh & P2P CRDT Sync
+* **Quantized Edge Model Packages (INT4 / INT8):**
+  * `MedTriage-Mobile-Q4` (INT4 • 620MB RAM): Air-gapped clinical intake and triage model running on mobile health clinic tablets.
+  * `CivicTranslate-INT8` (INT8 • 850MB RAM): 42-language offline translation agent with localized medical dictionaries.
+  * `Whisper-Tiny-Edge` (INT8 • 390MB RAM): Voice-to-text transcriber for verbal triage in remote field tents.
+  * `FieldIntake-Llama-4bit` (INT4 • 750MB RAM): Medicaid, food security, and housing eligibility extractor.
+* **Peer-to-Peer CRDT Sync:** Conflict-Free Replicated Data Types tracking offline intakes with **Lamport Timestamps** and multi-node vector clocks (`NODE-RURAL-01: 15, NODE-RURAL-02: 9`), guaranteeing zero-data-loss cloud reconciliation.
+
+### 5. 🔏 Verifiable ESG & Zero-Knowledge Proofs of Compute (Web3 / DID)
+* **W3C Decentralized Identifiers (DIDs):** Non-profit DIDs (`did:key:z6MktJg9...`) proving 501(c)(3) tax exemption and vetted public charity status using `Ed25519Signature2020` signatures.
+* **Zero-Knowledge SLA Compute Proofs (zk-SNARKs):** Corporate donors mathematically prove SLA delivery (&gt;99.5% uptime, &lt;2s latency, &gt;50 tok/s throughput) to auditors without disclosing proprietary model weights or server IPs.
+* **On-Chain Impact Carbon Offsets (Base L2 / Polygon):** Converts clean GPU hours into verified Soulbound Impact NFT certificates with token IDs and IPFS metadata URIs.
+
+### 6. 🤝 Collaboration & Real-Time Workspace
+* **Live Request Evaluation Chat:** Real-time bi-directional messaging between donors and non-profits during request evaluation.
+* **Coalition Milestone Kanban Board:** 5-stage milestone board (Backlog, In Progress, Review, Testing, Completed).
+* **Shared Resource Pool Manager:** Capacity quota splitting across coalition members.
+
+### 7. 📊 Analytics, Geospatial Map & Public Impact Wall
+* **Interactive Geospatial Impact Map:** Visualizer displaying national deployment hubs with pulsing radar pins.
+* **Dual Public Impact Directory:** Public-facing directory showcasing verified donor ESG badges and non-profit profiles.
+* **Immutable Cryptographic Audit Ledger:** SHA-256 verified transaction ledger (`AUD-2026-XXXX`) with one-click CSV and JSON compliance exporters.
+
+### 8. 🔔 Production Infrastructure & Multi-Platform Webhooks
+* **Database Connection Pooling:** Managed MySQL connection pool with live telemetry health probes.
+* **BullMQ Async Worker Queue:** Handles background CSR report generation, SLA benchmark probes, email alerts, and webhook events.
+* **Multi-Platform Webhooks:** Native formatters for **Slack Block Kit**, **Discord Embeds**, **Microsoft Teams Adaptive Cards**, and **Generic HTTPS**.
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+```
+Tech-Equity-Bridge/
+├── client/                          # React 19 Frontend
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── SroiForecaster.tsx   # Predictive SROI & Co-Funding Hub
+│   │   │   ├── Web3EsgVault.tsx     # zk-SNARK SLA Proofs & W3C DIDs
+│   │   │   ├── EdgeMesh.tsx         # Offline-First Edge Compute Mesh
+│   │   │   ├── IamManagement.tsx    # Enterprise SSO (Okta/Entra) & RBAC
+│   │   │   ├── A2ANegotiator.tsx    # Autonomous Agent-to-Agent Terminal
+│   │   │   ├── AgentSandbox.tsx     # In-Browser AI Agent Sandbox
+│   │   │   ├── GrantAssistant.tsx   # RFP Ingestion & Proposal Autofill
+│   │   │   ├── CoalitionBuilder.tsx # Milestone Kanban & Pool Allocator
+│   │   │   ├── ImpactTracker.tsx    # Geospatial Impact Map & Telemetry
+│   │   │   ├── ImpactWall.tsx       # Public Donor & Non-Profit Directory
+│   │   │   ├── Dashboard.tsx        # Role-Based Hub & ChatOps Triggers
+│   │   │   └── Marketplace.tsx      # SLA-Verified AI & Compute Market
+│   │   └── components/              # 50+ Specialized Civic Components
+│   └── index.html
+├── server/                          # Node.js / Express Backend
+│   ├── sroiEngine.ts                # Econometric SROI Regression Models
+│   ├── web3EsgEngine.ts             # zk-SNARK Groth16 & W3C DID Engine
+│   ├── edgeMeshEngine.ts            # Quantized Models & P2P CRDT Sync
+│   ├── iamEngine.ts                 # SAML 2.0 / OIDC & 5-Tier RBAC
+│   ├── a2aEngine.ts                 # Multi-Turn A2A Negotiation Protocol
+│   ├── workerQueue.ts               # BullMQ Async Background Job Queue
+│   ├── webhooks.ts                  # Slack / Teams / Discord Dispatcher
+│   ├── db.ts                        # Drizzle ORM & Connection Pooling
+│   └── routers.ts                   # Type-Safe tRPC API Layer
+└── drizzle/                         # Database Schema & Migrations
+```
+
+---
+
+## 🧪 Automated Test Suite
+
+Tech-Equity Bridge includes a 100% passing test suite across 10 specialized test files:
+
+```bash
+$ npm test
+
+ ✓ server/sroi_engine.test.ts   (3 tests)   # Econometric SROI Regression & Co-Funding
+ ✓ server/web3_esg.test.ts      (3 tests)   # zk-SNARK Groth16 Proofs & W3C DIDs
+ ✓ server/edge_mesh.test.ts     (4 tests)   # Quantized Edge Models & CRDT Vector Sync
+ ✓ server/iam_rbac.test.ts      (4 tests)   # Enterprise SAML/OIDC SSO & Granular RBAC
+ ✓ server/a2a_engine.test.ts    (3 tests)   # Multi-Turn Autonomous Agent Negotiations
+ ✓ server/collaboration.test.ts (4 tests)   # Real-Time Chat & Coalition Kanban
+ ✓ server/incentive.test.ts     (6 tests)   # 3-Tier Perks, CSR Reports & SLA Benchmarks
+ ✓ server/analytics.test.ts     (4 tests)   # Geospatial Hubs & Cryptographic Audit Logs
+ ✓ server/ai_upgrades.test.ts   (5 tests)   # Vector Matchmaker v2 & Sandbox Runner
+ ✓ server/e2e_workflow.test.ts  (1 test)    # Full Multi-Party Lifecycle Integration
+
+Test Files  10 passed (10)
+     Tests  37 passed (37)
+```
+
+---
+
+## ⚡ Quickstart Guide
+
+### Prerequisites
+- **Node.js**: `v20.x` or `v22.x+` (or `v24.x`)
+- **Package Manager**: `npm` or `pnpm`
+- **Database**: MySQL 8.0+ / TiDB (with automatic resilient in-memory zero-dependency fallback)
+
+### Installation & Launch
+
+```bash
+# 1. Clone repository
+git clone https://github.com/Shahrukhxkhan/Tech-Equity-Bridge.git
+cd Tech-Equity-Bridge
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment variables (Optional, defaults configured)
+cp .env.example .env
+
+# 4. Push database schema (if using external MySQL)
+npm run db:push
+
+# 5. Start development server
+npm run dev
+```
+
+Visit **`http://localhost:3000`** in your browser.
+
+---
+
+## 🗺️ Live Application Navigation Sitemap
+
+| Route | Feature Description |
+| :--- | :--- |
+| **`/`** | Civic Landing Page with verified platform impact metrics |
+| **`/dashboard`** | Enterprise Dashboard with ChatOps & Role Switcher |
+| **`/sroi`** | Predictive SROI ML Forecaster & Foundation Co-Funding Matcher |
+| **`/web3-esg`** | zk-SNARK Compute SLA Proofs, W3C DIDs & L2 Carbon Offsets |
+| **`/edge`** | Offline-First Edge Compute Mesh & P2P CRDT Clinic Sync |
+| **`/iam`** | Enterprise SSO Federation (Okta/Entra ID) & 5-Tier RBAC Console |
+| **`/a2a`** | Autonomous Agent-to-Agent Capacity Negotiator Terminal |
+| **`/impact-map`** | Interactive Geospatial Impact Map & Telemetry |
+| **`/impact-wall`** | Public Donor Impact Wall & Dual Non-Profit Directory |
+| **`/coalition`** | Coalition Workspace (Kanban, Shared Resource Pool Allocator, Live Chat) |
+| **`/notifications`** | Real-Time Notification Stream & Alert Feed |
+| **`/sandbox`** | In-Browser AI Agent Sandbox Playground |
+| **`/grant-assistant`** | Grant Writing Assistant v2 with RFP Ingestion & Context Autofill |
+| **`/marketplace`** | SLA-Verified AI Agent & GPU Compute Marketplace |
+| **`/admin/pledges`** | Admin SLA Monitor & Commitment Tracking |
+
+---
+
+## 📄 License & Governance
+
+Built for global civic equity under the **MIT License**.
+*Empowering communities with sovereign, transparent, and verified AI & computing resources.*
