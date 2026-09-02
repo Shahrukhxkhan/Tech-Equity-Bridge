@@ -10,6 +10,7 @@ import * as webhooks from "./webhooks";
 import * as a2aEngine from "./a2aEngine";
 import * as iamEngine from "./iamEngine";
 import * as edgeMeshEngine from "./edgeMeshEngine";
+import * as web3EsgEngine from "./web3EsgEngine";
 
 // Protected procedure for donors only
 const donorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1147,6 +1148,73 @@ export const appRouter = router({
     syncMeshToCloud: publicProcedure.mutation(async () => {
       return edgeMeshEngine.reconcileCrdtMeshToCloud();
     }),
+  }),
+
+  // ============ VERIFIABLE ESG, ZK-PROOFS & W3C DID VAULT ============
+  web3Esg: router({
+    getVerifiableCredentials: publicProcedure.query(async () => {
+      return web3EsgEngine.getVerifiableCredentialsList();
+    }),
+
+    verifyCredential: publicProcedure
+      .input(z.object({ credentialId: z.string() }))
+      .mutation(async ({ input }) => {
+        return web3EsgEngine.verifyVerifiableCredential(input.credentialId);
+      }),
+
+    getZkProofs: publicProcedure.query(async () => {
+      return web3EsgEngine.getZkSlaProofsList();
+    }),
+
+    generateZkProof: publicProcedure
+      .input(
+        z.object({
+          donorName: z.string(),
+          resourceTitle: z.string(),
+          metrics: z.object({
+            uptimePct: z.number(),
+            p95LatencyMs: z.number(),
+            throughputTokPerSec: z.number(),
+          }),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return web3EsgEngine.generateZkComputeProof(
+          input.donorName,
+          input.resourceTitle,
+          input.metrics
+        );
+      }),
+
+    verifyZkProof: publicProcedure
+      .input(z.object({ proofId: z.string() }))
+      .mutation(async ({ input }) => {
+        return web3EsgEngine.verifyZkSlaProof(input.proofId);
+      }),
+
+    getCarbonOffsets: publicProcedure.query(async () => {
+      return web3EsgEngine.getCarbonOffsetReceiptsList();
+    }),
+
+    mintCarbonOffset: publicProcedure
+      .input(
+        z.object({
+          donorName: z.string(),
+          nonprofitPartner: z.string(),
+          gpuHoursDonated: z.number(),
+          renewableEnergySource: z
+            .enum(["Hydroelectric", "Solar Photovoltaic", "Geothermal", "Offshore Wind"])
+            .optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return web3EsgEngine.mintCarbonOffsetCertificate(
+          input.donorName,
+          input.nonprofitPartner,
+          input.gpuHoursDonated,
+          input.renewableEnergySource
+        );
+      }),
   }),
 });
 

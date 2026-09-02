@@ -16,6 +16,7 @@ import AgentSandbox from "@/pages/AgentSandbox";
 import A2ANegotiator from "@/pages/A2ANegotiator";
 import IamManagement from "@/pages/IamManagement";
 import EdgeMesh from "@/pages/EdgeMesh";
+import Web3EsgVault from "@/pages/Web3EsgVault";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -48,6 +49,10 @@ function Router() {
       <Route path="/edge" component={EdgeMesh} />
       <Route path="/edge-mesh" component={EdgeMesh} />
       <Route path="/offline-clinic" component={EdgeMesh} />
+      <Route path="/web3-esg" component={Web3EsgVault} />
+      <Route path="/zk-proofs" component={Web3EsgVault} />
+      <Route path="/did-credentials" component={Web3EsgVault} />
+      <Route path="/carbon-offsets" component={Web3EsgVault} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/pledges" component={PledgeMonitor} />
       <Route path="/admin/pledge-monitor" component={PledgeMonitor} />
