@@ -14,6 +14,7 @@ import ImpactWall from "@/pages/ImpactWall";
 import PledgeMonitor from "@/pages/PledgeMonitor";
 import AgentSandbox from "@/pages/AgentSandbox";
 import A2ANegotiator from "@/pages/A2ANegotiator";
+import IamManagement from "@/pages/IamManagement";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -40,6 +41,9 @@ function Router() {
       <Route path="/grant-assistant" component={GrantAssistant} />
       <Route path="/grants" component={GrantAssistant} />
       <Route path="/notifications" component={NotificationCenter} />
+      <Route path="/iam" component={IamManagement} />
+      <Route path="/iam-admin" component={IamManagement} />
+      <Route path="/sso" component={IamManagement} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/pledges" component={PledgeMonitor} />
       <Route path="/admin/pledge-monitor" component={PledgeMonitor} />

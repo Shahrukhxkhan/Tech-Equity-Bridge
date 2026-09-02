@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink, Activity, Radio } from "lucide-react";
+import { TrendingUp, Users, Zap, Award, BarChart3, MessageSquare, Settings, Shield, Crown, FileText, ArrowRight, ExternalLink, Activity, Radio, Lock } from "lucide-react";
 import DonorPledgeManager from "@/components/DonorPledgeManager";
 import BenchmarkRunnerModal from "@/components/BenchmarkRunnerModal";
 import CsrReportViewer from "@/components/CsrReportViewer";
 import WebhookSettingsModal from "@/components/WebhookSettingsModal";
 import SystemHealthDrawer from "@/components/SystemHealthDrawer";
+import RoleAccessBadge from "@/components/RoleAccessBadge";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -24,9 +25,7 @@ export default function Dashboard() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#1D9E75] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                {user?.role === "donor" ? "Tech Donor Portal" : "Non-Profit & Civic Portal"}
-              </span>
+              <RoleAccessBadge />
               <a href="/impact-wall" className="text-xs text-purple-700 hover:underline flex items-center gap-1">
                 Public Impact Wall <ExternalLink className="w-3 h-3" />
               </a>
@@ -39,6 +38,12 @@ export default function Dashboard() {
 
           <div className="flex flex-wrap items-center gap-2">
             <a
+              href="/iam"
+              className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-lg border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 cursor-pointer shadow-xs"
+            >
+              <Lock className="w-3.5 h-3.5 mr-1.5 text-purple-600" /> Enterprise SSO & IAM
+            </a>
+            <a
               href="/a2a"
               className="inline-flex items-center px-3 py-2 text-xs font-bold rounded-lg border border-purple-300 bg-purple-700 text-white hover:bg-purple-800 cursor-pointer shadow-xs"
             >
@@ -46,7 +51,7 @@ export default function Dashboard() {
             </a>
             <button
               onClick={() => setShowWebhooksModal(true)}
-              className="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 cursor-pointer"
+              className="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer shadow-xs"
             >
               <Radio className="w-3.5 h-3.5 mr-1.5 text-purple-600" /> Webhooks
             </button>

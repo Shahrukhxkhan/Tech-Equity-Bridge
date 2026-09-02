@@ -8,6 +8,7 @@ import * as db from "./db";
 import * as workerQueue from "./workerQueue";
 import * as webhooks from "./webhooks";
 import * as a2aEngine from "./a2aEngine";
+import * as iamEngine from "./iamEngine";
 
 // Protected procedure for donors only
 const donorProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -1016,6 +1017,100 @@ export const appRouter = router({
     triggerSmartRebalance: publicProcedure.mutation(async () => {
       return a2aEngine.triggerDynamicRebalance();
     }),
+  }),
+
+  // ============ ENTERPRISE SSO & GRANULAR RBAC (IAM) ============
+  iam: router({
+    getCurrentRole: publicProcedure.query(async () => {
+      return iamEngine.getCurrentSessionRole();
+    }),
+
+    switchRole: publicProcedure
+      .input(
+        z.object({
+          role: z.enum([
+            "csr_executive",
+            "sla_auditor",
+            "coalition_lead",
+            "grant_navigator",
+            "public_auditor",
+            "admin",
+          ]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return iamEngine.switchActiveSessionRole(input.role);
+      }),
+
+    getPermissionMatrix: publicProcedure.query(async () => {
+      return {
+        matrix: iamEngine.RBAC_PERMISSION_MATRIX,
+        current: iamEngine.getCurrentSessionRole(),
+      };
+    }),
+
+    validateAccess: publicProcedure
+      .input(
+        z.object({
+          feature: z.enum([
+            "VIEW_ESG_CERTIFICATES",
+            "GENERATE_CSR_REPORTS",
+            "RUN_SLA_BENCHMARKS",
+            "MANAGE_GPU_ENDPOINTS",
+            "REBALANCE_COALITION_QUOTAS",
+            "MANAGE_MILESTONE_TASKS",
+            "DRAFT_GRANT_PROPOSALS",
+            "INITIATE_A2A_NEGOTIATIONS",
+            "ACCESS_AUDIT_LEDGER",
+            "EXPORT_COMPLIANCE_CSV",
+            "MANAGE_IAM_AND_SSO",
+          ]),
+        })
+      )
+      .query(async ({ input }) => {
+        const current = iamEngine.getCurrentSessionRole();
+        const allowed = iamEngine.canAccessFeature(current.role, input.feature);
+        return {
+          allowed,
+          role: current.role,
+          feature: input.feature,
+        };
+      }),
+
+    getSsoProviders: publicProcedure.query(async () => {
+      return iamEngine.getSsoProviderConfigs();
+    }),
+
+    saveSsoProvider: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(1),
+          providerType: z.enum(["okta", "entra_id", "google_workspace", "saml_generic"]),
+          protocol: z.enum(["SAML_2_0", "OIDC"]),
+          entityId: z.string().min(1),
+          ssoLoginUrl: z.string().url(),
+          clientDomain: z.string().min(1),
+          jitProvisioningEnabled: z.boolean().default(true),
+          defaultAssignedRole: z.enum([
+            "csr_executive",
+            "sla_auditor",
+            "coalition_lead",
+            "grant_navigator",
+            "public_auditor",
+            "admin",
+          ]),
+          isActive: z.boolean().default(true),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return iamEngine.saveSsoProviderConfig(input);
+      }),
+
+    testSsoConnection: publicProcedure
+      .input(z.object({ providerId: z.string() }))
+      .mutation(async ({ input }) => {
+        return iamEngine.testSsoProviderConnection(input.providerId);
+      }),
   }),
 });
 
